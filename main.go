@@ -54,7 +54,7 @@ func addItem(c *gin.Context) {
 		return
 	}
 
-	// Chequeo de code unico
+	// Chequeo de code unico sadsad
 	// Falta personalizar el error
 	if codeRepetido(&item) {
 		c.JSON(http.StatusBadRequest, responseInfo{
