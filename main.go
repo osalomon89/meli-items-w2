@@ -19,17 +19,21 @@ const port = ":9000"
 
 /*------declaramos la estructura -------*/
 
+//las etiquetas van en el postman
 type Item struct{
-	ID   int    
-	Code string
+	ID   int    `json:"id"`
+	Code string `json:"code_articulo"`
 	Title string
 	Description string
 	Price int
+	Photo string
 	Stock int
 	Status string
 	CreatedAt string
 	UpdateAt string
 }
+
+
 
 /*------creamos el slice-------*/
 var db []Item
@@ -143,12 +147,28 @@ func addItem(ctx *gin.Context) {
 		return
 	}
 
+	//devuelvo
+	item.ID = obtenerId()
+
 	//agregar item
 	db = append(db, item)
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
 		"data": item,
 	})
+}
+
+func obtenerId() int{
+	var idSiguiente int	
+	for _, itemAnterior := range db{
+		if idSiguiente < itemAnterior.ID{
+			idSiguiente = itemAnterior.ID
+		}
+		}
+		//INCREMENTAMOS 1
+		idSiguiente += 1
+		// incrementar al item
+		return idSiguiente
 }
 
 /*------2 - metodo PUT updateitem-------*/
