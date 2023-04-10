@@ -1,0 +1,4 @@
+github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
+github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/osalomon89/go-inventory-wave2 v0.0.0-20220905172038-82bbf9878abd h1:JQWMT7K+cqP68qs+wekpa0rYSIR9uXqh3NEHRZKbfto=
+github.com/osalomon89/go-inventory-wave2 v0.0.0-20220905172038-82bbf9878abd/go.mod h1:IfsetmRxwM9x7ZKExOLkDYpWkXIvvRM/j9olqyU6Zt0=
