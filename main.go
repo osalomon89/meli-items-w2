@@ -46,8 +46,8 @@ func main() {
 			Price:       550000,
 			Stock:       3,
 			Status:      "ACTIVE",
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+			UpdatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
 		},
 
 		{
@@ -58,8 +58,8 @@ func main() {
 			Price:       950000,
 			Stock:       2,
 			Status:      "ACTIVE",
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+			UpdatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
 		},
 
 		{
@@ -70,8 +70,8 @@ func main() {
 			Price:       300000,
 			Stock:       42,
 			Status:      "ACTIVE",
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+			UpdatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
 		},
 	}
 
@@ -87,6 +87,7 @@ func main() {
 	router.GET("v1/items", listItems)
 	router.GET("v1/items/:id", getItemByID)
 
+	// Post
 	router.POST("v1/items", addItem)
 	/* Para probar
 	[
@@ -109,10 +110,11 @@ func main() {
 	]
 	*/
 
-	/*
-		router.PUT("v1/items/:id", updateItem)
-		router.DELETE("v1/items/:id", deleteItem)
-	*/
+	// Put
+	router.PUT("v1/items/:id", updateItem)
+
+	// Delete
+	router.DELETE("v1/items/:id", deleteItem)
 
 	// Prendemos la maquinola
 	router.Run(port)
@@ -174,7 +176,7 @@ func getItemByID(c *gin.Context) {
 	if itemFound != (Item{}) {
 		c.JSON(http.StatusOK, itemFound)
 	} else {
-		c.AbortWithStatusJSON(http.StatusNotFound, "No se encuentra el id solicitado.")
+		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
 	}
 
 }
@@ -182,7 +184,7 @@ func getItemByID(c *gin.Context) {
 // Listar todos los items
 func listItems(c *gin.Context) {
 	if len(itemsDB) == 0 {
-		c.Error(fmt.Errorf("No hay items disponibles"))
+		c.Error(fmt.Errorf("no hay items disponibles"))
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -191,19 +193,39 @@ func listItems(c *gin.Context) {
 
 // Modificar item
 func updateItem(c *gin.Context) {
-	/*	var newSliceItem []Item
-		c.BindJSON(&newSliceItem)
+	//var itemFound Item
+	var itemToUpdate Item
+	id := c.Param("id")
 
-		for i := range newSliceItem {
-			if !newSliceItem[i].CreatedAt.IsZero() {
-				newSliceItem[i].Id = len(itemsDB) + i + 1
-				newSliceItem[i].CreatedAt = time.Now()
-				newSliceItem[i].UpdatedAt = time.Now()
-			}*/
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
+		return
+	}
+
+	c.BindJSON(&itemToUpdate)
+
+	for _, item := range itemsDB {
+		if item.Id == idInt {
+			item.Code = itemToUpdate.Code
+			item.Title = itemToUpdate.Title
+			item.Description = itemToUpdate.Description
+			item.Price = itemToUpdate.Price
+			item.Stock = itemToUpdate.Stock
+			item.Status = itemToUpdate.Status
+			item.CreatedAt = item.CreatedAt
+			item.UpdatedAt = time.Now()
+			c.JSON(http.StatusOK, itemToUpdate)
+			break
+		} else {
+			c.AbortWithStatusJSON(http.StatusNotFound, "No se encuentra el id solicitado.")
+			break
+		}
+	}
 
 }
 
 // Eliminar item
-func deleteItem() {
+func deleteItem(c *gin.Context) {
 
 }
