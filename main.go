@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 
@@ -12,15 +13,15 @@ import (
 )
 
 type Item struct {
-	Id          int    `json:"id"`
-	Code        string `json:"code"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Price       int    `json:"price"`
-	Stock       int    `json:"stock"`
-	Status      string `json:"status"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	Id          int       `json:"id"`
+	Code        string    `json:"code"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Price       int       `json:"price"`
+	Stock       int       `json:"stock"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type responseInfo struct {
@@ -112,9 +113,8 @@ func saveItem(i *Item) {
 
 	i.Status = validateStatus(i.Stock)
 
-	t := time.Now().Format(time.RFC3339)
-	i.CreatedAt = fmt.Sprint(t)
-	i.UpdatedAt = fmt.Sprint(t)
+	i.CreatedAt = time.Now()
+	i.UpdatedAt = time.Now()
 
 	articulos = append(articulos, *i)
 }
@@ -179,7 +179,7 @@ func updateItem(c *gin.Context) {
 			articulos[key].Price = item.Price
 			articulos[key].Stock = item.Stock
 			articulos[key].Status = validateStatus(item.Stock)
-			articulos[key].UpdatedAt = fmt.Sprintf(time.Now().Format(time.RFC3339))
+			articulos[key].UpdatedAt = time.Now()
 
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
@@ -287,7 +287,9 @@ func getItems(c *gin.Context) {
 		limit = len(articulos)
 	}
 
+	sort.Sort(byUpdatedTime(articulos))
 	var itemsToshow []Item
+
 	if len(status) != 0 {
 		for k, v := range articulos {
 			if v.Status == status {
@@ -307,3 +309,9 @@ func getItems(c *gin.Context) {
 	})
 
 }
+
+type byUpdatedTime []Item
+
+func (a byUpdatedTime) Len() int           { return len(a) }
+func (a byUpdatedTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byUpdatedTime) Less(i, j int) bool { return a[i].UpdatedAt.After(a[j].UpdatedAt) }
