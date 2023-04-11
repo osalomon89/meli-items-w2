@@ -12,15 +12,15 @@ import (
 )
 
 type Item struct {
-	id          int
+	Id          int    `json:"id"`
 	Code        string `json:"code"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Price       int    `json:"price"`
 	Stock       int    `json:"stock"`
-	status      string
-	created_at  string
-	updated_at  string
+	Status      string `json:"status"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type responseInfo struct {
@@ -103,28 +103,18 @@ func addItem(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, responseInfo{
 		Error: false,
-		Data: gin.H{
-			"id":          item.id,
-			"code":        item.Code,
-			"title":       item.Title,
-			"description": item.Description,
-			"price":       item.Price,
-			"stock":       item.Stock,
-			"status":      item.status,
-			"created_at":  item.created_at,
-			"updated_at":  item.updated_at,
-		}})
+		Data:  item})
 }
 
 func saveItem(i *Item) {
 	countId++
-	i.id = countId
+	i.Id = countId
 
-	i.status = validateStatus(i.Stock)
+	i.Status = validateStatus(i.Stock)
 
 	t := time.Now().Format(time.RFC3339)
-	i.created_at = fmt.Sprint(t)
-	i.updated_at = fmt.Sprint(t)
+	i.CreatedAt = fmt.Sprint(t)
+	i.UpdatedAt = fmt.Sprint(t)
 
 	articulos = append(articulos, *i)
 }
@@ -176,7 +166,7 @@ func updateItem(c *gin.Context) {
 
 	key := 0
 	for key < len(articulos) {
-		if articulos[key].id == id {
+		if articulos[key].Id == id {
 			err = validateCode(item.Code)
 			if err != nil && articulos[key].Code != item.Code {
 				handlingInvalidParam(err)
@@ -188,22 +178,12 @@ func updateItem(c *gin.Context) {
 			articulos[key].Description = item.Description
 			articulos[key].Price = item.Price
 			articulos[key].Stock = item.Stock
-			articulos[key].status = validateStatus(item.Stock)
-			articulos[key].updated_at = fmt.Sprintf(time.Now().Format(time.RFC3339))
+			articulos[key].Status = validateStatus(item.Stock)
+			articulos[key].UpdatedAt = fmt.Sprintf(time.Now().Format(time.RFC3339))
 
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
-				Data: gin.H{
-					"id":          articulos[key].id,
-					"code":        articulos[key].Code,
-					"title":       articulos[key].Title,
-					"description": articulos[key].Description,
-					"price":       articulos[key].Price,
-					"stock":       articulos[key].Stock,
-					"status":      articulos[key].status,
-					"created_at":  articulos[key].created_at,
-					"updated_at":  articulos[key].updated_at,
-				}})
+				Data:  articulos[key]})
 			return
 		}
 		key++
@@ -231,20 +211,10 @@ func getItem(c *gin.Context) {
 
 	key := 0
 	for key < len(articulos) {
-		if articulos[key].id == id {
+		if articulos[key].Id == id {
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
-				Data: gin.H{
-					"id":          articulos[key].id,
-					"code":        articulos[key].Code,
-					"title":       articulos[key].Title,
-					"description": articulos[key].Description,
-					"price":       articulos[key].Price,
-					"stock":       articulos[key].Stock,
-					"status":      articulos[key].status,
-					"created_at":  articulos[key].created_at,
-					"updated_at":  articulos[key].updated_at,
-				}})
+				Data:  articulos[key]})
 			return
 		}
 		key++
@@ -270,7 +240,7 @@ func deleteItem(c *gin.Context) {
 
 	key := 0
 	for key < len(articulos) {
-		if articulos[key].id == id {
+		if articulos[key].Id == id {
 			item := articulos[key]
 			articulos = append(articulos[:key], articulos[key+1:]...)
 			c.JSON(http.StatusOK, responseInfo{
@@ -320,7 +290,7 @@ func getItems(c *gin.Context) {
 	var itemsToshow []Item
 	if len(status) != 0 {
 		for k, v := range articulos {
-			if v.status == status {
+			if v.Status == status {
 				itemsToshow = append(itemsToshow, v)
 			}
 			if k == limit-1 {
