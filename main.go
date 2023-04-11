@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"github.com/gin-gonic/gin"
 	"time"
+	"sort"
 )
 
 const port = ":9000"
@@ -19,14 +20,13 @@ type Item struct {
 	Price       int    `json:"price"`
 	Stock       int    `json:"stock"`
 	Status      string `json:"status"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 var db []Item
 
 func main() {
-	fmt.Println(db)
 
 	r := gin.Default()
 
@@ -39,6 +39,10 @@ func main() {
 	r.Run(port)
 
 }
+
+
+
+// Funciones para los endpoints -----------------------------
 
 func addItem(c *gin.Context) {
 	request := c.Request
@@ -55,26 +59,16 @@ func addItem(c *gin.Context) {
 		return
 	}
 
-	// Chequeo de code unico sadsad
-	// Falta personalizar el error
 	if codeRepetido(&item) {
+		
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid json: %s", err.Error()),
+			Data:  fmt.Sprintf("code duplicado: %s", err.Error()),
 		})
 		return
 	}
-
-	//item.ID = obtenerSiguienteID()
-	//setStatus(&item)
-	//dt := time.Now()
-	//item.CreatedAt = dt.String()
-	//item.UpdatedAt = dt.String()
-
-	//db = append(db, item)
 	
 	initItem(&item)
-	//actualizarItem(&item)
 	saveItem(item)
 
 	c.JSON(http.StatusOK, responseInfo{
@@ -82,10 +76,6 @@ func addItem(c *gin.Context) {
 		Data:  item,
 	})
 }
-
-
-
-// Funciones para los endpoints
 
 func updateItem(c *gin.Context) {
 	request := c.Request
@@ -110,9 +100,7 @@ func updateItem(c *gin.Context) {
 		})
 		return
 	}
-
-	// Chequeo de code unico
-	// Falta personalizar el error
+	
 	if codeRepetido(&item) {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
@@ -171,20 +159,111 @@ func getItem(c *gin.Context) {
 }
 
 func deleteItem(c *gin.Context) {
-	// FALTA IMPLEMENTAR
+	idParam := c.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+		})
+		return
+	}
+
+	var db_copy []Item
+	var encontrado bool
+
+	for _,value := range db {
+		if value.ID != id {
+			db_copy = append(db_copy, value)
+		} else {
+			encontrado = true
+		}
+	}
+
+	if encontrado {
+		db = db_copy
+		c.JSON(http.StatusOK, responseInfo{
+			Error: false,
+			Data:  db,
+		})
+		return
+	} 
+
+	c.JSON(http.StatusNotFound, responseInfo{
+			Error: true,
+			Data:  "item not found",
+	})
+	
 }
 
 func getItems(c *gin.Context){
-	c.JSON(http.StatusOK, responseInfo{
-		Error: false,
-		Data:  db,
-	})
+	status := c.Query("status")
+	limitParam := c.DefaultQuery("limit", "10")
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+		})
+		return
+	}
+
+	var db_copy []Item
+	var db_copy_sub []Item
+
+	if status == "ACTIVE" {
+		for _,value := range db {
+			if value.Status == "ACTIVE" {
+				db_copy = append(db_copy, value)
+			}
+		}
+		sort.Slice(db_copy, func(i, j int) bool {
+			return db_copy[i].UpdatedAt.After(db_copy[j].UpdatedAt)
+		})
+		if limit > len(db_copy){
+			limit = len(db_copy)
+		}
+		db_copy_sub = db_copy[0:limit]
+		c.JSON(http.StatusOK, responseInfo{
+			Error: false,
+			Data:  db_copy_sub,
+		})
+	} else if status == "INACTIVE" {
+		for _,value := range db {
+			if value.Status == "INACTIVE" {
+				db_copy = append(db_copy, value)
+			}
+		}
+		sort.Slice(db_copy, func(i, j int) bool {
+			return db_copy[i].UpdatedAt.After(db_copy[j].UpdatedAt)
+		})
+		if limit > len(db_copy){
+			limit = len(db_copy)
+		}
+		db_copy_sub = db_copy[0:limit]
+		c.JSON(http.StatusOK, responseInfo{
+			Error: false,
+			Data:  db_copy_sub,
+		})
+
+	} else {
+		// Si no especifica nada
+		c.JSON(http.StatusOK, responseInfo{
+			Error: false,
+			Data:  db,
+		})
+	}
 }
 
 
 
 
-// Funciones auxiliares
+
+
+
+// Funciones auxiliares ---------------------------------------
 
 type responseInfo struct {
 	Error bool        `json:"error"`
@@ -194,6 +273,9 @@ type responseInfo struct {
 // Devuelve true si el code ya existe
 func codeRepetido(item *Item) bool {
 	var repetido bool
+	if item == nil {
+		return true
+	}
 	for _, val := range db {
 		if val.Code == item.Code {
 			repetido = true
@@ -226,13 +308,13 @@ func setStatus(item *Item) {
 func initItem(item *Item){
 	item.ID = obtenerSiguienteID()
 	dt := time.Now()
-	item.CreatedAt = dt.String()
+	item.CreatedAt = dt
 	actualizarCamposAutomaticos(item)
 }
 
 func actualizarCamposAutomaticos(item *Item){
 	dt := time.Now()
-	item.UpdatedAt = dt.String()
+	item.UpdatedAt = dt
 	setStatus(item)
 }
 
