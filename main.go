@@ -60,7 +60,6 @@ func addItem(c *gin.Context) {
 	}
 
 	if codeRepetido(&item) {
-		
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
 			Data:  fmt.Sprintf("code duplicado: %s", err.Error()),
@@ -219,13 +218,9 @@ func getItems(c *gin.Context){
 				db_copy = append(db_copy, value)
 			}
 		}
-		sort.Slice(db_copy, func(i, j int) bool {
-			return db_copy[i].UpdatedAt.After(db_copy[j].UpdatedAt)
-		})
-		if limit > len(db_copy){
-			limit = len(db_copy)
-		}
-		db_copy_sub = db_copy[0:limit]
+		
+		db_copy_sub = armarDB(db_copy,limit)
+		
 		c.JSON(http.StatusOK, responseInfo{
 			Error: false,
 			Data:  db_copy_sub,
@@ -236,13 +231,9 @@ func getItems(c *gin.Context){
 				db_copy = append(db_copy, value)
 			}
 		}
-		sort.Slice(db_copy, func(i, j int) bool {
-			return db_copy[i].UpdatedAt.After(db_copy[j].UpdatedAt)
-		})
-		if limit > len(db_copy){
-			limit = len(db_copy)
-		}
-		db_copy_sub = db_copy[0:limit]
+
+		db_copy_sub = armarDB(db_copy,limit)
+
 		c.JSON(http.StatusOK, responseInfo{
 			Error: false,
 			Data:  db_copy_sub,
@@ -255,6 +246,16 @@ func getItems(c *gin.Context){
 			Data:  db,
 		})
 	}
+}
+
+func armarDB(db_copy []Item, limit int) []Item{
+	sort.Slice(db_copy, func(i, j int) bool {
+		return db_copy[i].UpdatedAt.After(db_copy[j].UpdatedAt)
+	})
+	if limit > len(db_copy){
+		limit = len(db_copy)
+	}
+	return db_copy[0:limit]
 }
 
 
@@ -273,9 +274,7 @@ type responseInfo struct {
 // Devuelve true si el code ya existe
 func codeRepetido(item *Item) bool {
 	var repetido bool
-	if item == nil {
-		return true
-	}
+
 	for _, val := range db {
 		if val.Code == item.Code {
 			repetido = true
@@ -329,3 +328,4 @@ func actualizarCamposManuales(item Item, val *Item){
 func saveItem(item Item){
 	db = append(db, item)
 }
+
