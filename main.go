@@ -7,11 +7,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
+	"time"
 )
 
 /*------declaramos el puerto que escucha -------*/
@@ -19,90 +20,91 @@ const port = ":9000"
 
 /*------declaramos la estructura -------*/
 
-//las etiquetas van en el postman
-type Item struct{
-	ID   int    `json:"id"`
-	Code string `json:"code_articulo"`
-	Title string
-	Description string
-	Price int
-	Photo string
-	Stock int
-	Status string
-	CreatedAt string
-	UpdateAt string
+// se usan las de mayusculas, las minusculas se usan en el postman
+// las etiquetas van en el postman
+type Item struct {
+	ID          int       `json:"id"`
+	Code        string    `json:"code"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Price       int       `json:"price"`
+	Stock       int       `json:"stock"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"createAt"`
+	UpdateAt    time.Time `json:"updateAt"`
 }
-
-
-
+// *------estructura de respuesta en error y en data -------*/
+type ResponseInfo struct {
+	Error bool   `json:"error"`
+	Data  string `json:"data"`
+}
 /*------creamos el slice-------*/
-var db []Item
+var articulos []Item
 
-/*------creamos la func-------*/
-
-func main(){
+/*------creamos la funcion-------*/
+func main() {
 	item1 := Item{
-		ID : 1,
-		Code : "jddjskdjskdksd",
-		Title : "Smartphone Samsung s23",
+		ID:          1,
+		Code:        "item1",
+		Title:       "Smartphone Samsung s23",
 		Description: "Smarthphone Galaxy s23 S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-		Price : 1234,
-		Stock: 54,
-		Status: "ACTIVE",
-		CreatedAt: "2020-05-10T04:20:33Z",
-		UpdateAt: "2020-05-10T05:30:00Z",
+		Price:       1234,
+		Stock:       54,
+		Status:      "ACTIVE",
+		CreatedAt:   time.Now(),
+		UpdateAt:    time.Now(),
 	}
 	item2 := Item{
-		ID : 2,
-		Code : "jddjskdjskdksd",
-		Title : "Smartphone Samsung s23",
+		ID:          2,
+		Code:        "item2",
+		Title:       "Smartphone Samsung s23",
 		Description: "Smarthphone Galaxy s23 S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-		Price : 1234,
-		Stock: 54,
-		Status: "ACTIVE",
-		CreatedAt: "2020-05-10T04:20:33Z",
-		UpdateAt: "2020-05-10T05:30:00Z",
+		Price:       1234,
+		Stock:       54,
+		Status:      "ACTIVE",
+		CreatedAt:   time.Now(),
+		UpdateAt:    time.Now(),
 	}
 	item3 := Item{
-		ID : 3,
-		Code : "jddjskdjskdksd",
-		Title : "Smartphone Samsung s23",
+		ID:          3,
+		Code:        "item3",
+		Title:       "Smartphone Samsung s23",
 		Description: "Smarthphone Galaxy s23 S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-		Price : 1234,
-		Stock: 54,
-		Status: "ACTIVE",
-		CreatedAt: "2020-05-10T04:20:33Z",
-		UpdateAt: "2020-05-10T05:30:00Z",
+		Price:       1234,
+		Stock:       54,
+		Status:      "ACTIVE",
+		CreatedAt:   time.Now(),
+		UpdateAt:    time.Now(),
 	}
 
-	db = append(db, item1,item2,item3)
+	articulos = append(articulos, item1, item2, item3)
+	//es el router que crea por default y package de logeo y recover
 	r := gin.Default()
 
+	
+	/*-----ENDPOINTS-----*/
+	//router.GET(el path, n handler))
 	/*------GETS -------*/
 
 	r.GET("/", index)
 	r.GET("v1/items", getItems)
-	//r.GET("GET v1/items/{id}", getItemById)
-	//r.GET("v1/items?status={status}&limit={limit}", getAllItems)
-
+	r.GET("GET v1/items/:id", getItemById)
+	//r.GET("v1/items", getAllItems)
 
 	/*------POST -------*/
 
 	r.POST("v1/items", addItem)
 
 	/*------PUT-------*/
-	r.PUT("v1/items/{id}", updateitem)
+	r.PUT("v1/items/:id", updateItem)
 
 	/*------DELETE-------*/
-	//r.DELETE("v1/items/{id}", deleteItem)
-
-
+	r.DELETE("v1/items/:id", deleteItem)
 
 	r.Run(port)
 
 	/*------MSJ ESCUCHANDO PUERTO -------*/
 	log.Println("server listening to the port:", port)
-
 
 	/*------MSJ DE ERROR -------*/
 	if err := http.ListenAndServe(port, r); err != nil {
@@ -110,30 +112,32 @@ func main(){
 	}
 }
 
-
 //w responde: respuesta del servidor al cliente
 //r request: peticion del cliente al servidor
 
-//*------estructura de respuesta en error y en data -------*/
-type ResponseInfo struct {
-	Error bool   `json:"error"`
-	Data  string `json:"data"`
-}
-
-//func inicializar para ver su todo funca
+// func inicializar para ver su todo funca
 func index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "bienvenido a mi increible api")
 }
 
-/*------metodo GETITEM -------*/
+/*------metodo getItem -------*/
 func getItems(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
-		"data": db,
+		"data":  articulos,
 	})
 }
 
-//*------1 - metodo POST ADDITEM -------*/
+// func save item para no sobrecargar la funcion additem POST
+func saveItem(item *Item) {
+	item.CreatedAt = time.Now()
+	item.UpdateAt = time.Now()
+	//obtenermos
+	item.ID = obtenerId()
+
+}
+
+// *------1 - metodo POST ADDITEM -------*/
 func addItem(ctx *gin.Context) {
 	request := ctx.Request
 
@@ -142,37 +146,81 @@ func addItem(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data": err.Error(),
+			"data":  err.Error(),
+		})
+		return
+	}
+	if codigoRepetido(&item) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  fmt.Errorf("el code no corresponde, no es unico"),
+		})
+		return
+
+	}
+
+	//validar status
+	item.Status = validateStatus(item.Stock)
+
+	saveItem(&item)
+
+	//que todo este completo obligatoriamente
+	if item.Code == "" || item.Title == "" || item.Description == "" || item.Price == 0 || item.Status == "" {
+		ctx.JSON(http.StatusBadRequest, ResponseInfo{
+			Error: true,
+			Data:  "invalid json",
 		})
 		return
 	}
 
-	//devuelvo
-	item.ID = obtenerId()
-
 	//agregar item
-	db = append(db, item)
+	articulos = append(articulos, item)
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
-		"data": item,
+		"data":  item,
 	})
 }
 
-func obtenerId() int{
-	var idSiguiente int	
-	for _, itemAnterior := range db{
-		if idSiguiente < itemAnterior.ID{
+//FUNCIONES -------
+
+// id autoincremental
+func obtenerId() int {
+	var idSiguiente int
+	for _, itemAnterior := range articulos {
+		if idSiguiente < itemAnterior.ID {
 			idSiguiente = itemAnterior.ID
 		}
+	}
+	//INCREMENTAMOS 1
+	idSiguiente += 1
+	// incrementar al item
+	return idSiguiente
+}
+
+// codigo debe ser unico
+
+// funcion repetido
+func codigoRepetido(item *Item) bool {
+	var repetido bool
+	for _, valor := range articulos {
+		if valor.Code == item.Code {
+			repetido = true
 		}
-		//INCREMENTAMOS 1
-		idSiguiente += 1
-		// incrementar al item
-		return idSiguiente
+	}
+	return repetido
+}
+
+// validar status
+func validateStatus(stock int) string {
+	if stock > 0 {
+		return "ACTIVE"
+	} else {
+		return "INACTIVE"
+	}
 }
 
 /*------2 - metodo PUT updateitem-------*/
-func updateitem(ctx *gin.Context) {
+func updateItem(ctx *gin.Context) {
 	r := ctx.Request
 	idParam := ctx.Param("id")
 
@@ -194,20 +242,74 @@ func updateitem(ctx *gin.Context) {
 		return
 	}
 	//aca se usa el id que chiilla
-	for i, v := range db {
+	for i, v := range articulos {
 		if v.ID == id {
-			db[i] = item
+			articulos[i] = item
 
 		}
 	}
-	
+
+	item.ID = obtenerId()
+	//validar status
+	item.Status = validateStatus(item.Stock)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
-		"data": db,
+		"data":  articulos,
 	})
 
 }
 
 /*------3 - metodo GET ID getid  -------*/
+
+func getItemById(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	for i, v := range articulos {
+		if v.ID == id {
+			articulos = append(articulos[:i], articulos[i+1:]...)
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  articulos,
+	})
+}
+
 /*------4 - metodo DELETE deleteitem-------*/
+
+func deleteItem(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	for i, v := range articulos {
+		if v.ID == id {
+			articulos = append(articulos[:i], articulos[i+1:]...)
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  articulos,
+	})
+}
+
 /*------5 - metodo GET ALLitems  -------*/
