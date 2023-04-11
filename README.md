@@ -29,7 +29,7 @@ A continuación un ejemplo de la representación _JSON_ de un item:
 #### Reglas sobre artículos
 
 1. Los _ids_ deben ser generados automáticamente.
-2. Los campos `code`, `title`, `description`, `price`, `stock`, `photos` son obligatórios.
+2. Los campos `code`, `title`, `description`, `price`, `stock` son obligatórios.
 3. El campo `code` debe ser único.
 4. Los campos `status`, `created_at`, `updated_at` son automáticamente generados por el sistema. La API no debería permitir modificaciones sobre ellos.
 5. El campo `status` puede tener los siguientes valores:
