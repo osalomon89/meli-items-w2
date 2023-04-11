@@ -75,21 +75,37 @@ func main() {
 	}
 
 	// Agrego los items a la DB
-	itemsDB = append(items)
-	fmt.Println(itemsDB)
+	saveItem(items)
 
 	// Router default de gin y logueo
 	router := gin.Default()
 
 	// ******** ENDPOINTS *******
 
+	// Get
 	router.GET("v1/items", listItems)
+	router.GET("v1/items/:id", getItemByID)
+
+	router.POST("v1/items", addItem)
+	/* Para probar
+	[
+	    {
+	        "id": 4,
+	        "code": "SAM27324358",
+	        "title": "Prueba",
+	        "description": "Prueba",
+	        "price": 550000,
+	        "stock": 2,
+	        "status": "ACTIVE",
+	        "created_at": "2023-04-11T09:46:40.085679-05:00",
+	        "updated_at": "2023-04-11T09:46:40.085679-05:00"
+	    }
+	]
+	*/
 
 	/*
-		server.POST("v1/items", addItem)
-		server.PUT("v1/items/:id", updateItem)
-		server.GET("v1/items/:id", getItemByID)
-		server.DELETE("v1/items/:id", deleteItem)
+		router.PUT("v1/items/:id", updateItem)
+		router.DELETE("v1/items/:id", deleteItem)
 	*/
 
 	// Prendemos la maquinola
@@ -101,17 +117,20 @@ func main() {
 }
 
 // Guardar un item
-func saveItem(c *gin.Context) {
-
+func saveItem(addItem []Item) {
+	itemsDB = append(itemsDB, addItem...)
 }
 
 // Añadir item
-func addItem() {
-
+func addItem(c *gin.Context) {
+	var newItem []Item
+	c.BindJSON(&newItem)
+	saveItem(newItem)
+	c.IndentedJSON(http.StatusCreated, newItem)
 }
 
 // Obtener Item por id
-func getItemByID() {
+func getItemByID(c *gin.Context) {
 
 }
 
