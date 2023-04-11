@@ -2,17 +2,40 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-var db []Item
-
+// Puerto de escucha declarado como const
 const port string = "localhost:8888"
 
+// Creo BD local
+var itemsDB []Item
+
+// Item Creamos la estructura Item y las etiquetas del JSON
+type Item struct {
+	Id          int       `json:"id"`
+	Code        string    `json:"code"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Price       int       `json:"price"`
+	Stock       int       `json:"stock"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// ResponseInfo Creamos la estructura ResponseInfo y las etiquetas del JSON
+type ResponseInfo struct {
+	Error bool        `json:"error"`
+	Data  interface{} `json:"data"`
+}
+
 func main() {
+	// Instancio 3 items para agregar a la BD
 	var items = []Item{
 		{
 			Id:          1,
@@ -36,12 +59,32 @@ func main() {
 			Status:      "ACTIVE",
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
-		}}
-	fmt.Println(items)
+		},
 
+		{
+			Id:          3,
+			Code:        "SAM27324356",
+			Title:       "Smartphone Samsung J2",
+			Description: "Smarthphone J2 6 pulgadas y 1GB de memoria RAM",
+			Price:       300000,
+			Stock:       42,
+			Status:      "ACTIVE",
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+
+	// Agrego los items a la DB
+	itemsDB = append(items)
+	fmt.Println(itemsDB)
+
+	// Router default de gin y logueo
 	router := gin.Default()
 
+	// ******** ENDPOINTS *******
+
 	router.GET("v1/items", listItems)
+
 	/*
 		server.POST("v1/items", addItem)
 		server.PUT("v1/items/:id", updateItem)
@@ -49,27 +92,12 @@ func main() {
 		server.DELETE("v1/items/:id", deleteItem)
 	*/
 
+	// Prendemos la maquinola
 	router.Run(port)
 
-}
+	// Mensaje del puerto
+	log.Println("server listening to the port:", port)
 
-// Item Creamos la estructura Item y las etiquetas del JSON
-type Item struct {
-	Id          int       `json:"id"`
-	Code        string    `json:"code"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Price       int       `json:"price"`
-	Stock       int       `json:"stock"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-// ResponseInfo Creamos la estructura ResponseInfo y las etiquetas del JSON
-type ResponseInfo struct {
-	Error bool        `json:"error"`
-	Data  interface{} `json:"data"`
 }
 
 // Guardar un item
@@ -89,7 +117,12 @@ func getItemByID() {
 
 // Listar todos los items
 func listItems(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, db)
+	if len(itemsDB) == 0 {
+		c.Error(fmt.Errorf("No hay items disponibles"))
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	c.IndentedJSON(http.StatusOK, itemsDB)
 }
 
 // Modificar item
