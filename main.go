@@ -12,6 +12,6 @@ func main() {
 	server.PUT("v1/items/:id", controller.UpdateItem)
 	server.GET("v1/items/:id", controller.GetById)
 	server.DELETE("v1/items/:id", controller.DeleteById)
-	server.GET("v1/items/search", controller.GetByStatusAndLimit)
+	server.GET("v1/items", controller.GetByStatusAndLimit)
 	server.Run(":9000")
 }

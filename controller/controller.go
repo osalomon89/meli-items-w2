@@ -109,8 +109,15 @@ func AddItem(c *gin.Context) {
 	req := c.Request
 	body := req.Body
 	var result map[string]any
-	resBody, _ := io.ReadAll(body)
-	//err := json.NewDecoder(body).Decode(&item)
+	resBody, errRead := io.ReadAll(body)
+	if errRead != nil {
+		c.JSON(http.StatusInternalServerError, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("Error reading body: %s", errRead.Error()),
+		})
+		return
+	}
+
 	err := json.Unmarshal(resBody, &result)
 	if len(checkFields(result)) > 0 {
 		var errToString string
@@ -276,7 +283,14 @@ func GetByStatusAndLimit(c *gin.Context) {
 	//		//return
 	//	}
 	//})
-	limitInt, _ := strconv.Atoi(limitReq)
+	limitInt, errAtoi := strconv.Atoi(limitReq)
+	if errAtoi != nil {
+		c.JSON(http.StatusInternalServerError, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("Error parse int limit: %s", errAtoi.Error()),
+		})
+		return
+	}
 	if limitInt == 0 && limitReq == "" {
 		limitInt = 10
 	}
