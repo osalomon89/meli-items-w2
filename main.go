@@ -2,54 +2,66 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 const port = ":9000"
 
-type Book struct {
-	ID     int    `json:"id"`
-	Author string `json:"author"`
-	Title  string `json:"title"`
-	Price  int    `json:"price"`
+type Item struct {
+	ID          int     `json:"id"`
+	Code        string  `json:"code"`
+	Title       string  `json:"title"`
+	Descripcion string  `json:"descripcion"`
+	Price       float64 `json:"price"`
+	Stock       int     `json:"stock"`
+	Status      string  `json:"status"`
+	CreatAt     string  `json:"creat_at"`
+	UpdateAt    string  `json:"update_at"`
+	Author      string  `json:"author"`
 }
 
-var db []Book
-
-var errDB = errors.New("error in database")
+var db []Item
 
 func main() {
-	b1 := Book{
-		ID:     1,
-		Title:  "Dune",
-		Price:  1965,
-		Author: "Frank Herbert",
+	item1 := Item{
+		ID:          1,
+		Code:        "asiu654",
+		Title:       "Escritorio",
+		Descripcion: "Excelente escritorio confortable",
+		Price:       24500,
+		Stock:       10,
 	}
 
-	b2 := Book{
+	item2 := Item{
 		ID:     2,
 		Title:  "Cita con Rama",
 		Price:  1974,
 		Author: "Arthur C. Clarke",
 	}
 
-	b3 := Book{
-		ID:     3,
-		Title:  "Un guijarro en el cielo",
-		Price:  500,
-		Author: "Isaac Asimov",
+	item3 := Item{
+		ID:          3,
+		Code:        "abvc887",
+		Title:       "Lavadora",
+		Descripcion: "Excelente lavadora",
+		Price:       500,
+		Stock:       5,
 	}
 
-	db = append(db, b1, b2, b3)
+	db = append(db, item1, item2, item3)
 
-	r := mux.NewRouter()
+	r := gin.Default()
 
-	r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
+	r.GET("/", index)
+	r.GET("/books", getItem)
+	r.POST("/books", addItem)
+	r.GET("/books/:id", getItemById)
+	r.PUT("/books/:id", updateItem)
+	r.DELETE("/books/:id", deleteItem)
 
 	log.Println("Server listening on port", port)
 
@@ -58,83 +70,132 @@ func main() {
 	}
 }
 
+/*
+w response: respuesta del servidor al cliente
+r request: peticion del cliente al servidor
+*/
+func index(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, "Bienvenido a mi increible API!")
+}
+
 type ResponseInfo struct {
 	Error bool   `json:"error"`
 	Data  string `json:"data"`
 }
 
-type ResourceNotFoundError struct {
-	Message string
-}
+// Actualizando item
+func updateItem(ctx *gin.Context) {
+	r := ctx.Request
+	idParam := ctx.Param("id")
 
-func updateBook(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-
-	id, err := strconv.Atoi(params["id"])
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		encodeJSON(w, ResponseInfo{
-			Error: true,
-			Data:  err.Error(),
-		}, http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
 		return
 	}
 
-	key, err := findBook(id)
+	var item Item
+	err = json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
-		notFoundError := new(ResourceNotFoundError)
-		if ok := errors.As(err, notFoundError); ok {
-			encodeJSON(w, ResponseInfo{
-				Error: true,
-				Data:  notFoundError.Error(),
-			}, http.StatusNotFound)
-			return
-		}
-
-		if ok := errors.Is(err, errDB); ok {
-			encodeJSON(w, ResponseInfo{
-				Error: true,
-				Data:  errDB.Error(),
-			}, http.StatusServiceUnavailable)
-			return
-		}
-
-		encodeJSON(w, ResponseInfo{
-			Error: true,
-			Data:  err.Error(),
-		}, http.StatusInternalServerError)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
 		return
-	}
-
-	var book Book
-	json.NewDecoder(r.Body).Decode(&book)
-
-	db[key] = book
-
-	encodeJSON(w, db, http.StatusOK)
-}
-
-func findBook(id int) (int, error) {
-	if id == 0 {
-		return 0, errDB
-	}
-
-	if id == 99 {
-		return 0, errors.New("internal server error")
 	}
 
 	for i, v := range db {
 		if v.ID == id {
-			return i, nil
+			db[i] = item
 		}
 	}
 
-	return 0, ResourceNotFoundError{
-		Message: fmt.Sprintf("book not found. ID: %d", id),
-	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  db,
+	})
 }
 
-func encodeJSON(w http.ResponseWriter, v interface{}, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(v)
+// Agregar item/ ///////
+func addItem(ctx *gin.Context) {
+
+	request := ctx.Request
+	var item Item
+	err := json.NewDecoder(request.Body).Decode(&item)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	db = append(db, item)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  db,
+	})
+}
+
+func getItem(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  db,
+	})
+}
+
+func getItemById(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	for _, v := range db {
+		if v.ID == id {
+			ctx.JSON(http.StatusOK, gin.H{
+				"error": false,
+				"data":  v,
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusNotFound, gin.H{
+		"error": true,
+		"data":  "book not found",
+	})
+}
+
+func deleteItem(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	for i, v := range db {
+		if v.ID == id {
+			db = append(db[:i], db[i+1:]...)
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  db,
+	})
 }
