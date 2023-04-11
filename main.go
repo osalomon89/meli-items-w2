@@ -2,17 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 const port = ":9000"
 
 type Item struct {
-	ID          int     `json:"id"`
+	Id          int     `json:"id"`
 	Code        string  `json:"code"`
 	Title       string  `json:"title"`
 	Descripcion string  `json:"descripcion"`
@@ -28,28 +27,39 @@ var db []Item
 
 func main() {
 	item1 := Item{
-		ID:          1,
-		Code:        "asiu654",
+		Id:          1,
+		Code:        "escritorio1234",
 		Title:       "Escritorio",
 		Descripcion: "Excelente escritorio confortable",
 		Price:       24500,
 		Stock:       10,
+		Status:      "Activo",
+		CreatAt:     "2020-05-10T04:20:33Z",
+		UpdateAt:    "2020-05-10T05:30:00Z",
 	}
 
 	item2 := Item{
-		ID:     2,
-		Title:  "Cita con Rama",
-		Price:  1974,
-		Author: "Arthur C. Clarke",
+		Id:          2,
+		Code:        "Sofa1234",
+		Title:       "Sofa",
+		Descripcion: "Comodo sofa para tardear",
+		Price:       24500,
+		Stock:       10,
+		Status:      "Activo",
+		CreatAt:     "2020-05-10T04:20:33Z",
+		UpdateAt:    "2020-05-10T05:30:00Z",
 	}
 
 	item3 := Item{
-		ID:          3,
-		Code:        "abvc887",
-		Title:       "Lavadora",
-		Descripcion: "Excelente lavadora",
-		Price:       500,
-		Stock:       5,
+		Id:          3,
+		Code:        "Iphone1234",
+		Title:       "Iphone 20",
+		Descripcion: "Dispositivo de alta gama",
+		Price:       45687,
+		Stock:       7,
+		Status:      "Activo",
+		CreatAt:     "2020-05-10T04:20:33Z",
+		UpdateAt:    "2020-05-10T05:30:00Z",
 	}
 
 	db = append(db, item1, item2, item3)
@@ -57,11 +67,11 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", index)
-	r.GET("/books", getItem)
-	r.POST("/books", addItem)
-	r.GET("/books/:id", getItemById)
-	r.PUT("/books/:id", updateItem)
-	r.DELETE("/books/:id", deleteItem)
+	r.GET("/items", getItem)
+	r.POST("/items", addItem)
+	r.GET("/items/:id", getItemById)
+	r.PUT("/items/:id", updateItem)
+	r.DELETE("/items/:id", deleteItem)
 
 	log.Println("Server listening on port", port)
 
@@ -74,8 +84,8 @@ func main() {
 w response: respuesta del servidor al cliente
 r request: peticion del cliente al servidor
 */
-func index(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, "Bienvenido a mi increible API!")
+func index(c *gin.Context) {
+	c.JSON(http.StatusOK, "Bienvenido a mi increible API!")
 }
 
 type ResponseInfo struct {
@@ -83,59 +93,28 @@ type ResponseInfo struct {
 	Data  string `json:"data"`
 }
 
-// Actualizando item
-func updateItem(ctx *gin.Context) {
-	r := ctx.Request
-	idParam := ctx.Param("id")
+// Función que permite agregar items
+func addItem(c *gin.Context) {
 
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": true,
-			"data":  err.Error(),
-		})
-		return
-	}
-
-	var item Item
-	err = json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": true,
-			"data":  err.Error(),
-		})
-		return
-	}
-
-	for i, v := range db {
-		if v.ID == id {
-			db[i] = item
-		}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"error": false,
-		"data":  db,
-	})
-}
-
-// Agregar item/ ///////
-func addItem(ctx *gin.Context) {
-
-	request := ctx.Request
+	request := c.Request
 	var item Item
 	err := json.NewDecoder(request.Body).Decode(&item)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
 			"data":  err.Error(),
 		})
 		return
+	}
+	if item.Stock > 0 {
+		item.Status = "ACTIVE"
+	} else {
+		item.Status = "INACTIVE"
 	}
 
 	db = append(db, item)
 
-	ctx.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"error": false,
 		"data":  db,
 	})
@@ -148,40 +127,24 @@ func getItem(ctx *gin.Context) {
 	})
 }
 
-func getItemById(ctx *gin.Context) {
-	idParam := ctx.Param("id")
+// Función que permite acutalizar items
+func updateItem(c *gin.Context) {
+	r := c.Request
+	idParam := c.Param("id")
 
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
 			"data":  err.Error(),
 		})
 		return
 	}
 
-	for _, v := range db {
-		if v.ID == id {
-			ctx.JSON(http.StatusOK, gin.H{
-				"error": false,
-				"data":  v,
-			})
-			return
-		}
-	}
-
-	ctx.JSON(http.StatusNotFound, gin.H{
-		"error": true,
-		"data":  "book not found",
-	})
-}
-
-func deleteItem(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-
-	id, err := strconv.Atoi(idParam)
+	var item Item
+	err = json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
 			"data":  err.Error(),
 		})
@@ -189,12 +152,66 @@ func deleteItem(ctx *gin.Context) {
 	}
 
 	for i, v := range db {
-		if v.ID == id {
+		if v.Id == id {
+			db[i] = item
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  db,
+	})
+}
+
+// Función que permite agregar items dado un id
+func getItemById(c *gin.Context) {
+	idParam := c.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	for _, v := range db {
+		if v.Id == id {
+			c.JSON(http.StatusOK, gin.H{
+				"error": false,
+				"data":  v,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, gin.H{
+		"error": true,
+		"data":  "book not found",
+	})
+}
+
+// Función que permite elimar items
+func deleteItem(c *gin.Context) {
+	idParam := c.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	for i, v := range db {
+		if v.Id == id {
 			db = append(db[:i], db[i+1:]...)
 		}
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"error": false,
 		"data":  db,
 	})
