@@ -120,12 +120,11 @@ func saveItem(i *Item) {
 }
 
 func validateCode(code string) error {
-	key := 0
-	for key < len(articulos) {
-		if articulos[key].Code == code {
+
+	for _, v := range articulos {
+		if v.Code == code {
 			return errors.New(fmt.Sprintf("The code '%s' already exists", code))
 		}
-		key++
 	}
 	return nil
 }
@@ -164,29 +163,27 @@ func updateItem(c *gin.Context) {
 		return
 	}
 
-	key := 0
-	for key < len(articulos) {
-		if articulos[key].Id == id {
+	for _, v := range articulos {
+		if v.Id == id {
 			err = validateCode(item.Code)
-			if err != nil && articulos[key].Code != item.Code {
+			if err != nil && v.Code != item.Code {
 				handlingInvalidParam(err)
 				return
 			}
 
-			articulos[key].Code = item.Code
-			articulos[key].Title = item.Title
-			articulos[key].Description = item.Description
-			articulos[key].Price = item.Price
-			articulos[key].Stock = item.Stock
-			articulos[key].Status = validateStatus(item.Stock)
-			articulos[key].UpdatedAt = time.Now()
+			v.Code = item.Code
+			v.Title = item.Title
+			v.Description = item.Description
+			v.Price = item.Price
+			v.Stock = item.Stock
+			v.Status = validateStatus(item.Stock)
+			v.UpdatedAt = time.Now()
 
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
-				Data:  articulos[key]})
+				Data:  v})
 			return
 		}
-		key++
 	}
 
 	c.JSON(http.StatusNotFound, responseInfo{
@@ -209,15 +206,13 @@ func getItem(c *gin.Context) {
 		return
 	}
 
-	key := 0
-	for key < len(articulos) {
-		if articulos[key].Id == id {
+	for _, v := range articulos {
+		if v.Id == id {
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
-				Data:  articulos[key]})
+				Data:  v})
 			return
 		}
-		key++
 	}
 
 	c.JSON(http.StatusNotFound, responseInfo{
@@ -238,18 +233,15 @@ func deleteItem(c *gin.Context) {
 		})
 	}
 
-	key := 0
-	for key < len(articulos) {
-		if articulos[key].Id == id {
-			item := articulos[key]
-			articulos = append(articulos[:key], articulos[key+1:]...)
+	for k, v := range articulos {
+		if v.Id == id {
+			articulos = append(articulos[:k], articulos[k+1:]...)
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
-				Data:  gin.H{fmt.Sprintf("Item with id '%d' deleted", id): item},
+				Data:  gin.H{fmt.Sprintf("Item with id '%d' deleted", id): v},
 			})
 			return
 		}
-		key++
 	}
 
 	c.JSON(http.StatusNotFound, responseInfo{
