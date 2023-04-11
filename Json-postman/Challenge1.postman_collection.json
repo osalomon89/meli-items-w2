@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "bd58b49a-ca53-4ad1-a25c-0579945a7b15",
+		"name": "Challenge1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Crear nuevos items",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"code\": \"algo nuevo\",\n  \"title\": \"Tablet Samsung Galaxy Tab S7\",\n  \"description\": \"Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM\",\n  \"price\": 158000,\n  \"stock\": 0\n}"
+				},
+				"url": {
+					"raw": "localhost:8080/v1/items/",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"items",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar un item",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"code\": \"item2 nuevo\",\n    \"title\": \"Nuevo titulo\".\n    \"description\": \"Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM\",\n    \"price\": 158000,\n    \"stock\": 0\n}"
+				},
+				"url": {
+					"raw": "localhost:8080/v1/items/2",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"items",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener item por id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/items/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"items",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar item por id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/items/3",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"items",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los items",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/v1/items?limit=12&status=INACTIVE",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"items"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "12"
+						},
+						{
+							"key": "status",
+							"value": "INACTIVE"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
