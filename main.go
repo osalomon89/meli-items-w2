@@ -34,7 +34,7 @@ func main() {
 	r.PUT("v1/items/:id", updateItem)
 	r.GET("v1/items/:id", getItem)
 	r.DELETE("v1/items/:id", deleteItem) 
-	r.GET("v1/items", getItems) // como expresar el opcional en visual
+	r.GET("v1/items", getItems) 
 
 	r.Run(port)
 
@@ -45,6 +45,7 @@ func addItem(c *gin.Context) {
 	body := request.Body
 
 	var item Item
+
 	err := json.NewDecoder(body).Decode(&item)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
@@ -64,19 +65,25 @@ func addItem(c *gin.Context) {
 		return
 	}
 
-	item.ID = obtenerSiguienteID()
-	setStatus(&item)
-	dt := time.Now()
-	item.CreatedAt = dt.String()
-	item.UpdatedAt = dt.String()
+	//item.ID = obtenerSiguienteID()
+	//setStatus(&item)
+	//dt := time.Now()
+	//item.CreatedAt = dt.String()
+	//item.UpdatedAt = dt.String()
 
-	db = append(db, item)
+	//db = append(db, item)
+	
+	initItem(&item)
+	//actualizarItem(&item)
+	saveItem(item)
 
 	c.JSON(http.StatusOK, responseInfo{
 		Error: false,
 		Data:  item,
 	})
 }
+
+
 
 // Funciones para los endpoints
 
@@ -114,17 +121,10 @@ func updateItem(c *gin.Context) {
 		return
 	}
 
-	setStatus(&item)
-	dt := time.Now()
 	for _, val := range db {
 		if val.ID == id {
-			val.Code = item.Code
-			val.Title = item.Title
-			val.Description = item.Description
-			val.Price = item.Price
-			val.Stock = item.Stock
-			val.Status = item.Status
-			val.UpdatedAt = dt.String()
+			actualizarCamposManuales(item, &val)
+			actualizarCamposAutomaticos(&val)
 
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
@@ -221,4 +221,29 @@ func setStatus(item *Item) {
 	} else {
 		item.Status = "ACTIVE"
 	}
+}
+
+func initItem(item *Item){
+	item.ID = obtenerSiguienteID()
+	dt := time.Now()
+	item.CreatedAt = dt.String()
+	actualizarCamposAutomaticos(item)
+}
+
+func actualizarCamposAutomaticos(item *Item){
+	dt := time.Now()
+	item.UpdatedAt = dt.String()
+	setStatus(item)
+}
+
+func actualizarCamposManuales(item Item, val *Item){
+	val.Code = item.Code
+	val.Title = item.Title
+	val.Description = item.Description
+	val.Price = item.Price
+	val.Stock = item.Stock
+}
+
+func saveItem(item Item){
+	db = append(db, item)
 }
