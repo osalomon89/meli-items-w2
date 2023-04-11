@@ -3,6 +3,7 @@ En Mercado Libre trabajamos con articulos de sellers que los venden a traves de 
 El objetivo de este desafío es realizar una aplicación la cual exponga un API que permita realizar algunas
 operaciones de CRUD para cada una de esas dos entidades con algunas reglas de negocio sobre ellas.
 */
+
 package main
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -19,7 +21,6 @@ import (
 const port = ":9000"
 
 /*------declaramos la estructura -------*/
-
 // se usan las de mayusculas, las minusculas se usan en el postman
 // las etiquetas van en el postman
 type Item struct {
@@ -33,11 +34,13 @@ type Item struct {
 	CreatedAt   time.Time `json:"createAt"`
 	UpdateAt    time.Time `json:"updateAt"`
 }
+
 // *------estructura de respuesta en error y en data -------*/
 type ResponseInfo struct {
 	Error bool   `json:"error"`
-	Data  string `json:"data"`
+	Data  interface{} `json:"data"`
 }
+
 /*------creamos el slice-------*/
 var articulos []Item
 
@@ -81,18 +84,16 @@ func main() {
 	//es el router que crea por default y package de logeo y recover
 	r := gin.Default()
 
-	
 	/*-----ENDPOINTS-----*/
 	//router.GET(el path, n handler))
-	/*------GETS -------*/
 
+	/*------GETS -------*/
 	r.GET("/", index)
-	r.GET("v1/items", getItems)
-	r.GET("GET v1/items/:id", getItemById)
-	//r.GET("v1/items", getAllItems)
+	r.GET("v1/listaInicial", getListaInicial)
+	r.GET("v1/items/:id", getItemById)
+	r.GET("v1/items", getAllItems)
 
 	/*------POST -------*/
-
 	r.POST("v1/items", addItem)
 
 	/*------PUT-------*/
@@ -101,9 +102,8 @@ func main() {
 	/*------DELETE-------*/
 	r.DELETE("v1/items/:id", deleteItem)
 
-	r.Run(port)
-
 	/*------MSJ ESCUCHANDO PUERTO -------*/
+	r.Run(port)
 	log.Println("server listening to the port:", port)
 
 	/*------MSJ DE ERROR -------*/
@@ -112,29 +112,17 @@ func main() {
 	}
 }
 
-//w responde: respuesta del servidor al cliente
-//r request: peticion del cliente al servidor
-
 // func inicializar para ver su todo funca
 func index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "bienvenido a mi increible api")
 }
 
 /*------metodo getItem -------*/
-func getItems(ctx *gin.Context) {
+func getListaInicial(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
 		"data":  articulos,
 	})
-}
-
-// func save item para no sobrecargar la funcion additem POST
-func saveItem(item *Item) {
-	item.CreatedAt = time.Now()
-	item.UpdateAt = time.Now()
-	//obtenermos
-	item.ID = obtenerId()
-
 }
 
 // *------1 - metodo POST ADDITEM -------*/
@@ -143,6 +131,7 @@ func addItem(ctx *gin.Context) {
 
 	var item Item
 	err := json.NewDecoder(request.Body).Decode(&item)
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
@@ -150,6 +139,18 @@ func addItem(ctx *gin.Context) {
 		})
 		return
 	}
+
+	//validacion de informacion completa
+	//que todo este completo obligatoriamente (se la robe a santi)
+	err = informacionCompleta(&item)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, ResponseInfo{
+			Error: true,
+			Data:  "invalid json",
+		})
+	}
+
+	//ver codigo repetido
 	if codigoRepetido(&item) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
@@ -159,72 +160,29 @@ func addItem(ctx *gin.Context) {
 
 	}
 
-	//validar status
-	item.Status = validateStatus(item.Stock)
+	//lamamos las funciones
+	actualizarCreateAt(&item)
+	actualizarUpdateAt(&item)
+	validateStatus(&item)
+	actualizarId(&item)
 
-	saveItem(&item)
-
-	//que todo este completo obligatoriamente
-	if item.Code == "" || item.Title == "" || item.Description == "" || item.Price == 0 || item.Status == "" {
-		ctx.JSON(http.StatusBadRequest, ResponseInfo{
-			Error: true,
-			Data:  "invalid json",
-		})
-		return
-	}
+	appendItemToArticulos(item)
 
 	//agregar item
-	articulos = append(articulos, item)
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
 		"data":  item,
 	})
 }
 
-//FUNCIONES -------
-
-// id autoincremental
-func obtenerId() int {
-	var idSiguiente int
-	for _, itemAnterior := range articulos {
-		if idSiguiente < itemAnterior.ID {
-			idSiguiente = itemAnterior.ID
-		}
-	}
-	//INCREMENTAMOS 1
-	idSiguiente += 1
-	// incrementar al item
-	return idSiguiente
-}
-
-// codigo debe ser unico
-
-// funcion repetido
-func codigoRepetido(item *Item) bool {
-	var repetido bool
-	for _, valor := range articulos {
-		if valor.Code == item.Code {
-			repetido = true
-		}
-	}
-	return repetido
-}
-
-// validar status
-func validateStatus(stock int) string {
-	if stock > 0 {
-		return "ACTIVE"
-	} else {
-		return "INACTIVE"
-	}
-}
-
-/*------2 - metodo PUT updateitem-------*/
+/*
+/*------2 - metodo PUT updateitem-------
+*/
 func updateItem(ctx *gin.Context) {
 	r := ctx.Request
 	idParam := ctx.Param("id")
 
-	id, err := strconv.Atoi(idParam)
+	_, err := strconv.Atoi(idParam)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
@@ -241,17 +199,17 @@ func updateItem(ctx *gin.Context) {
 		})
 		return
 	}
-	//aca se usa el id que chiilla
-	for i, v := range articulos {
-		if v.ID == id {
-			articulos[i] = item
+	//CHECKEO DE CODE UNICO
+	if codigoRepetido(&item) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  fmt.Errorf("el code no corresponde, no es unico"),
+		})
+		return
 
-		}
 	}
-
-	item.ID = obtenerId()
-	//validar status
-	item.Status = validateStatus(item.Stock)
+	//lamamos funciones
+	updateItemNuevo(item)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
@@ -267,25 +225,29 @@ func getItemById(ctx *gin.Context) {
 
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": true,
-			"data":  err.Error(),
+		ctx.JSON(http.StatusBadRequest, ResponseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
 		})
 		return
 	}
 
-	for i, v := range articulos {
+	for _, v := range articulos {
 		if v.ID == id {
-			articulos = append(articulos[:i], articulos[i+1:]...)
+			ctx.JSON(http.StatusOK, ResponseInfo{
+				Error: false,
+				Data:  v,
+			})
+			return
 		}
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"error": false,
-		"data":  articulos,
+	ctx.JSON(http.StatusNotFound, ResponseInfo{
+		Error: true,
+		Data:  "item not found",
 	})
-}
 
+}
 /*------4 - metodo DELETE deleteitem-------*/
 
 func deleteItem(ctx *gin.Context) {
@@ -313,3 +275,64 @@ func deleteItem(ctx *gin.Context) {
 }
 
 /*------5 - metodo GET ALLitems  -------*/
+//meteria los slice los active, los ordenaria y filtraria por limit
+
+func getAllItems(ctx *gin.Context) {
+	status := ctx.Query("status")
+	limitParam := ctx.DefaultQuery("limit", "10")
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, ResponseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("invalid Param: %s", err.Error()),
+		})
+		return
+	}
+
+	var articulos_copy []Item
+	var articulos_copy_sub []Item
+
+	if status == "ACTIVE" {
+		for _, value := range articulos {
+			if value.Status == "ACTIVE" {
+				articulos_copy = append(articulos_copy, value)
+			}
+		}
+		sort.Slice(articulos_copy, func(i, j int) bool {
+			return articulos_copy[i].UpdateAt.After(articulos_copy[j].UpdateAt)
+		})
+		if limit > len(articulos_copy) {
+			limit = len(articulos_copy)
+		}
+		articulos_copy_sub = articulos_copy[0:limit]
+
+		ctx.JSON(http.StatusOK, ResponseInfo{
+			Error: false,
+			Data: articulos_copy_sub,
+		})
+	} else if status == "INACTIVE" {
+		for _, value := range articulos {
+			if value.Status == "INACTIVE" {
+				articulos_copy = append(articulos_copy, value)
+			}
+		}
+		sort.Slice(articulos_copy, func(i, j int) bool {
+			return articulos_copy[i].UpdateAt.After(articulos_copy[j].UpdateAt)
+		})
+		if limit > len(articulos_copy) {
+			limit = len(articulos_copy)
+		}
+		articulos_copy_sub = articulos_copy[0:limit]
+		ctx.JSON(http.StatusOK, ResponseInfo{
+			Error: false,
+			Data:  articulos_copy_sub,
+		})
+	} else {
+		// Si no especifica nada
+		ctx.JSON(http.StatusOK, ResponseInfo{
+			Error: false,
+			Data:  articulos,
+		})
+	}
+}
