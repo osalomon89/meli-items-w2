@@ -287,7 +287,9 @@ func getItems(c *gin.Context) {
 		limit = len(articulos)
 	}
 
-	sort.Sort(byUpdatedTime(articulos))
+	sort.Slice(articulos, func(i, j int) bool {
+		return articulos[i].UpdatedAt.After(articulos[j].UpdatedAt)
+	})
 	var itemsToshow []Item
 
 	if len(status) != 0 {
@@ -309,9 +311,3 @@ func getItems(c *gin.Context) {
 	})
 
 }
-
-type byUpdatedTime []Item
-
-func (a byUpdatedTime) Len() int           { return len(a) }
-func (a byUpdatedTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byUpdatedTime) Less(i, j int) bool { return a[i].UpdatedAt.After(a[j].UpdatedAt) }
