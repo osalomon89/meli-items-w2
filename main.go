@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -90,15 +91,20 @@ func main() {
 	/* Para probar
 	[
 	    {
-	        "id": 4,
-	        "code": "SAM27324358",
-	        "title": "Prueba",
-	        "description": "Prueba",
-	        "price": 550000,
-	        "stock": 2,
-	        "status": "ACTIVE",
-	        "created_at": "2023-04-11T09:46:40.085679-05:00",
-	        "updated_at": "2023-04-11T09:46:40.085679-05:00"
+	        "code": "LPTP27324354",
+	        "title": "Laptop Dell XPS 13",
+	        "description": "Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM",
+	        "price": 2000000,
+	        "stock": 5,
+	        "status": "ACTIVE"
+	    },
+	    {
+	        "code": "LPTP27324355",
+	        "title": "Laptop HP Spectre x360",
+	        "description": "HP Spectre x360 con procesador Intel Core i7 de 11.ª generación y 8GB de memoria RAM",
+	        "price": 1800000,
+	        "stock": 3,
+	        "status": "ACTIVE"
 	    }
 	]
 	*/
@@ -123,14 +129,53 @@ func saveItem(addItem []Item) {
 
 // Añadir item
 func addItem(c *gin.Context) {
-	var newItem []Item
-	c.BindJSON(&newItem)
-	saveItem(newItem)
-	c.IndentedJSON(http.StatusCreated, newItem)
+	var newSliceItem []Item
+	c.BindJSON(&newSliceItem)
+
+	for i := range newSliceItem {
+		newSliceItem[i].Id = len(itemsDB) + i + 1
+		newSliceItem[i].CreatedAt = time.Now()
+		newSliceItem[i].UpdatedAt = time.Now()
+	}
+
+	saveItem(newSliceItem)
+	c.IndentedJSON(http.StatusCreated, newSliceItem)
+
 }
 
 // Obtener Item por id
 func getItemByID(c *gin.Context) {
+	// Obtener el ID del parámetro de la URL
+	id := c.Param("id")
+
+	// Variable bandera para verificar si sí se encuentra el id solicitado
+	//isFound := false
+
+	// Para guardar el item si se encuentra
+	var itemFound Item
+
+	// Casteando el param que llega en string a int
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
+		return
+	}
+
+	// Buscamos el id que necesitamos
+	for _, item := range itemsDB {
+		if item.Id == idInt {
+			itemFound = item
+			break
+		}
+	}
+
+	// Retornamos ok si encontramos el id, no es necesario igular a true en la condición ya que en Go porque el valor booleano es en sí una condición en el caso if found {...}
+	// Se puede evitar el uso de la variable bandera si directamente preguntamos por el valor por default de la struct Item
+	if itemFound != (Item{}) {
+		c.JSON(http.StatusOK, itemFound)
+	} else {
+		c.AbortWithStatusJSON(http.StatusNotFound, "No se encuentra el id solicitado.")
+	}
 
 }
 
@@ -145,7 +190,16 @@ func listItems(c *gin.Context) {
 }
 
 // Modificar item
-func updateItem() {
+func updateItem(c *gin.Context) {
+	/*	var newSliceItem []Item
+		c.BindJSON(&newSliceItem)
+
+		for i := range newSliceItem {
+			if !newSliceItem[i].CreatedAt.IsZero() {
+				newSliceItem[i].Id = len(itemsDB) + i + 1
+				newSliceItem[i].CreatedAt = time.Now()
+				newSliceItem[i].UpdatedAt = time.Now()
+			}*/
 
 }
 
