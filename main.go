@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -88,11 +89,6 @@ func index(c *gin.Context) {
 	c.JSON(http.StatusOK, "Bienvenido a mi increible API!")
 }
 
-type ResponseInfo struct {
-	Error bool   `json:"error"`
-	Data  string `json:"data"`
-}
-
 // Función que permite agregar items
 func addItem(c *gin.Context) {
 
@@ -102,7 +98,7 @@ func addItem(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data":  err.Error(),
+			"data":  fmt.Sprintf("Json invalido", err.Error()),
 		})
 		return
 	}
@@ -120,11 +116,32 @@ func addItem(c *gin.Context) {
 	})
 }
 
-func getItem(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
+// Funcion para obtener items
+func getItem(c *gin.Context) {
+	idParam := c.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"error": false,
+			"data":  fmt.Sprintf("Json invalido", err.Error()),
+		})
+		return
+
+	}
+	var item Item
+
+	for i, v := range db {
+		if v.Id == id {
+			db[i] = item
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
 		"error": false,
-		"data":  db,
+		"data":  "Item no encontrado",
 	})
+
 }
 
 // Función que permite acutalizar items
@@ -136,7 +153,7 @@ func updateItem(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data":  err.Error(),
+			"data":  fmt.Sprintf("Json invalido", err.Error()),
 		})
 		return
 	}
@@ -146,7 +163,7 @@ func updateItem(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data":  err.Error(),
+			"data":  fmt.Sprintf("Json invalido", err.Error()),
 		})
 		return
 	}
@@ -163,7 +180,7 @@ func updateItem(c *gin.Context) {
 	})
 }
 
-// Función que permite agregar items dado un id
+// Función que permite obtener items dado un id
 func getItemById(c *gin.Context) {
 	idParam := c.Param("id")
 
@@ -171,7 +188,7 @@ func getItemById(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data":  err.Error(),
+			"data":  fmt.Sprintf("Json invalido", err.Error()),
 		})
 		return
 	}
@@ -188,7 +205,7 @@ func getItemById(c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, gin.H{
 		"error": true,
-		"data":  "book not found",
+		"data":  "Item no encontrado",
 	})
 }
 
@@ -200,7 +217,7 @@ func deleteItem(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data":  err.Error(),
+			"data":  fmt.Sprintf("Json invalido", err.Error()),
 		})
 		return
 	}
@@ -213,6 +230,13 @@ func deleteItem(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"error": false,
-		"data":  db,
+		"data":  "Item no encontrado",
 	})
 }
+
+type ResponseInfo struct {
+	Error bool   `json:"error"`
+	Data  string `json:"data"`
+}
+
+//Función que nos dice si el código ya existe
