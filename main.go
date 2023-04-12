@@ -132,7 +132,12 @@ func saveItem(addItem []Item) {
 // Añadir item
 func addItem(c *gin.Context) {
 	var newSliceItem []Item
-	c.BindJSON(&newSliceItem)
+
+	// Manejando el error
+	if err := c.BindJSON(&newSliceItem); err != nil {
+		c.JSON(http.StatusNotFound, err)
+		return
+	}
 
 	for i := range newSliceItem {
 		newSliceItem[i].Id = len(itemsDB) + i + 1
@@ -191,7 +196,7 @@ func listItems(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, itemsDB)
 }
 
-// Modificar item
+// Modificar item no funca
 func updateItem(c *gin.Context) {
 	//var itemFound Item
 	var itemToUpdate Item
