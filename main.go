@@ -50,8 +50,7 @@ func addItem(c *gin.Context) {
 
 	var item Item
 
-	err := json.NewDecoder(body).Decode(&item)
-	if err != nil {
+	if err := json.NewDecoder(body).Decode(&item); err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
 			Data:  fmt.Sprintf("invalid json: %s", err.Error()),
@@ -59,11 +58,13 @@ func addItem(c *gin.Context) {
 		return
 	}
 
-	if codeRepetido(&item) {
+	if codeRepetido(item) {
+		
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("code duplicado: %s", err.Error()),
+			Data:  fmt.Sprintf("El code %s está duplicado", item.Code),
 		})
+		
 		return
 	}
 	
@@ -91,19 +92,19 @@ func updateItem(c *gin.Context) {
 	}
 
 	var item Item
-	err2 := json.NewDecoder(body).Decode(&item)
-	if err2 != nil {
+	err := json.NewDecoder(body).Decode(&item)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid json: %s", err2.Error()),
+			Data:  fmt.Sprintf("invalid json: %s", err.Error()),
 		})
 		return
 	}
 	
-	if codeRepetido(&item) {
+	if codeRepetido(item) {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid json: %s", err2.Error()),
+			Data:  fmt.Sprintf("El code %s está duplicado", item.Code),
 		})
 		return
 	}
@@ -124,7 +125,7 @@ func updateItem(c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, responseInfo{
 		Error: true,
-		Data:  "item not found",
+		Data:  "Item not found",
 	})
 }
 
@@ -152,7 +153,7 @@ func getItem(c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, responseInfo{
 		Error: true,
-		Data:  "item not found",
+		Data:  "Item not found",
 	})
 
 }
@@ -191,7 +192,7 @@ func deleteItem(c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, responseInfo{
 			Error: true,
-			Data:  "item not found",
+			Data:  "Item not found",
 	})
 	
 }
@@ -272,14 +273,15 @@ type responseInfo struct {
 }
 
 // Devuelve true si el code ya existe
-func codeRepetido(item *Item) bool {
+func codeRepetido(item Item) bool {
 	var repetido bool
-
+	fmt.Println("Paso 1")
 	for _, val := range db {
 		if val.Code == item.Code {
 			repetido = true
 		}
 	}
+	fmt.Println("Paso 2")
 	return repetido
 }
 
