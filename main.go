@@ -47,34 +47,34 @@ var articulos []Item
 /*------creamos la funcion-------*/
 func main() {
 	item1 := Item{
-		ID:          1,
-		Code:        "item1",
-		Title:       "Smartphone Samsung s23",
+		ID:          0,
+		Code:        "SAM27324000",
+		Title:       "Smartphone Samsung s23 Ultra",
 		Description: "Smarthphone Galaxy s23 S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-		Price:       1234,
+		Price:       400000,
 		Stock:       54,
 		Status:      "ACTIVE",
 		CreatedAt:   time.Now(),
 		UpdateAt:    time.Now(),
 	}
 	item2 := Item{
-		ID:          2,
-		Code:        "item2",
-		Title:       "Smartphone Samsung s23",
-		Description: "Smarthphone Galaxy s23 S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-		Price:       1234,
-		Stock:       54,
+		ID:          1,
+		Code:        "SAM27324001",
+		Title:       "Smartphone Samsung a10",
+		Description: "Smarthphone Galaxy a10S sin Pen 10 pulgadas y 2GB de memoria RAM",
+		Price:       120000,
+		Stock:       120,
 		Status:      "ACTIVE",
 		CreatedAt:   time.Now(),
 		UpdateAt:    time.Now(),
 	}
 	item3 := Item{
-		ID:          3,
-		Code:        "item3",
-		Title:       "Smartphone Samsung s23",
-		Description: "Smarthphone Galaxy s23 S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-		Price:       1234,
-		Stock:       54,
+		ID:          2,
+		Code:        "SAM27324002",
+		Title:       "Microondas Samsung AB456",
+		Description: "Microondas Samsung AB456 con cooking iron and roasting function",
+		Price:       156000,
+		Stock:       20,
 		Status:      "ACTIVE",
 		CreatedAt:   time.Now(),
 		UpdateAt:    time.Now(),
@@ -117,7 +117,7 @@ func index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "bienvenido a mi increible api")
 }
 
-/*------metodo getItem -------*/
+/*------metodo getLista inicial de item -------*/
 func getListaInicial(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
@@ -148,6 +148,7 @@ func addItem(ctx *gin.Context) {
 			Error: true,
 			Data:  "invalid json",
 		})
+		return
 	}
 
 	//ver codigo repetido

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-//solo creacion
+//solo creacion podrian guardarse como save item
 func actualizarCreateAt(item *Item){
 	item.CreatedAt = time.Now()
 }
@@ -75,7 +75,7 @@ func validateStatus(item *Item) {
 }
 
 func informacionCompleta(item *Item) error{
-	if item.Code == "" || item.Title == "" || item.Description == "" || item.Price == 0 || item.Status == "" {
+	if item.Code == "" || item.Title == "" || item.Description == "" || item.Price == 0 {
 		return fmt.Errorf("el campo no debe estar vacio")
 	}
 	return nil
