@@ -139,16 +139,6 @@ func validateStatus(stock int) string {
 func updateItem(c *gin.Context) {
 	body := c.Request.Body
 
-	var item Item
-	err := json.NewDecoder(body).Decode(&item)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  gin.H{"invalid json": fmt.Sprint(err.Error())},
-		})
-		return
-	}
-
 	handlingInvalidParam := func(e error) {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
@@ -160,6 +150,16 @@ func updateItem(c *gin.Context) {
 	id, err := strconv.Atoi(idRequested)
 	if err != nil {
 		handlingInvalidParam(err)
+		return
+	}
+
+	var item Item
+	err = json.NewDecoder(body).Decode(&item)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  gin.H{"invalid json": fmt.Sprint(err.Error())},
+		})
 		return
 	}
 
@@ -279,7 +279,7 @@ func getItems(c *gin.Context) {
 		limit = len(articulos)
 	}
 
-	sort.Slice(articulos, func(i, j int) bool {
+	sort.SliceStable(articulos, func(i, j int) bool {
 		return articulos[i].UpdatedAt.After(articulos[j].UpdatedAt)
 	})
 	var itemsToshow []Item
