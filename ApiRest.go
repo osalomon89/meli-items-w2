@@ -192,7 +192,8 @@ func main() {
 	
 	func getItemsById(c *gin.Context){
 		idParam := c.Param("id")
-		id
+		id, err := strconv.Atoi(idParam)
+
 
 	}
 	
