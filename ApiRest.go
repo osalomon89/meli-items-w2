@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -63,8 +62,8 @@ func main() {
 	r.GET("/ping", pong)
 
 	r.GET("/api/v1/items", getItems)
-	r.GET("/api/v1/items/:id", getItemByID)
-	r.PUT("/api/v1/items/:id", getItemByID)
+	r.GET("/api/v1/items/:id", getItemsById)
+	r.PUT("/api/v1/items/:id", updateItem)
 	r.POST("/api/v1/items", addItem)
 
 	r.Run(port)
@@ -89,11 +88,11 @@ func main() {
 		})
 	}
 
-	func saveItem(item *Item){
+	func saveItem(item *Item) {
 		item.CreatedAt = time.Now()
-		item.UpdateAt = time.Now()
-		item.ID = obtenerUltimoId(db) +1
-		db = append(db, item)
+		item.UpdatedAt = time.Now()
+		item.ID = obtenerUltimoId(db)+1
+		db = append(db, *item)
 	}
 		
 	func addItem(c *gin.Context) {
@@ -141,14 +140,63 @@ func main() {
 
 
 
+	func updateItem(ctx *gin.Context) {
+		idParam := ctx.Param("id")
+		id, err := strconv.Atoi(idParam)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": true,
+				"data":  err.Error(),
+			})
+			return
+		}
+	
+		var item Item
+		err = json.NewDecoder(ctx.Request.Body).Decode(&item)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": true,
+				"data":  err.Error(),
+			})
+			return
+		}
+	
+		for i, _ := range db {
+			if db[i].ID == id {
+				db[i].Title = item.Title
+				db[i].Description = item.Description
+				db[i].Code = item.Code
+				db[i].Price = item.Price
+	
+				ctx.JSON(http.StatusOK, gin.H{"data": db[i]})
+				return
+			}
+		}
+	
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "No se encontro el item"})
+	}
+
+
+
+	
+	
 	func obtenerUltimoId(items []Item) int {
 		var ultimoId int
-		for _, id := range ids{
-			if id > ultimoId {
-				ultimoId = id
+		for _, item := range items {
+			if item.ID > ultimoId {
+				ultimoId = item.ID
 			}
 		}
 		return ultimoId
+	}
+	
+	func getItemsById(c *gin.Context){
+		idParam := c.Param("id")
+		id
 
 	}
+	
+
+
+
 
