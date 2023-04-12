@@ -117,7 +117,7 @@ func updateItem(c *gin.Context) {
 		return
 	}
 
-	for _, val := range db {
+	for pos, val := range db {
 		if val.ID == id {
 			error_item := actualizarCamposManuales(item, &val)
 			if error_item {
@@ -133,7 +133,7 @@ func updateItem(c *gin.Context) {
 					Data:  "item nil",
 				})
 			}
-
+			db[pos] = val
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
 				Data:  val,
