@@ -182,41 +182,46 @@ func addItem(ctx *gin.Context) {
 func updateItem(ctx *gin.Context) {
 	r := ctx.Request
 	idParam := ctx.Param("id")
+	fmt.Println("VER SI LLEGA EL IDPARAM: ", idParam)
 
-	_, err := strconv.Atoi(idParam)
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
+		fmt.Println("VER SI ENTRO IF")
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data":  err.Error(),
+			"data":  fmt.Errorf("invalid ID parameter: %s", err.Error()),
 		})
 		return
 	}
+	fmt.Println("VER 3ER FMT")
 	var item Item
 	err = json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
+		fmt.Println("VER decodifica body")
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
-			"data":  err.Error(),
+			"data":  fmt.Errorf("error decoding request body: %s", err.Error()),
 		})
 		return
 	}
-	//CHECKEO DE CODE UNICO
-	if codigoRepetido(&item) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": true,
-			"data":  fmt.Errorf("el code no corresponde, no es unico"),
+	item.ID = id
+	// validación de código único, no va codigo repetido
+	//se niega
+	if !codigoRepetido(&item) {
+		ctx.JSON(http.StatusBadRequest, ResponseInfo{
+			Error: true,
+			Data:  fmt.Errorf("code already exists and must be unique"),
 		})
 		return
-
 	}
-	//lamamos funciones
+	fmt.Println("VER 5ER FMT")
+	// llamar funciones
 	updateItemNuevo(item)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"error": false,
 		"data":  articulos,
 	})
-
 }
 
 /*------3 - metodo GET ID getid  -------*/

@@ -30,7 +30,11 @@ func updateItemNuevo(item Item){
 	actualizarUpdateAt(&item)
 	for i, v := range articulos {
 		if v.ID == item.ID {
-			articulos[i] = item
+			articulos[i].Code = item.Code
+			articulos[i].Title = item.Title
+			articulos[i].Description = item.Description
+			articulos[i].Price = item.Price
+			articulos[i].Stock = item.Stock
 
 		}
 	}
