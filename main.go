@@ -208,7 +208,10 @@ func updateItem(c *gin.Context) {
 		return
 	}
 
-	c.BindJSON(&itemToUpdate)
+	if error := c.BindJSON(&itemToUpdate); error != nil {
+		c.JSON(http.StatusNotFound, error)
+		return
+	}
 
 	for _, item := range itemsDB {
 		if item.Id == idInt {
