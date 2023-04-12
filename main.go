@@ -67,9 +67,17 @@ func addItem(c *gin.Context) {
 		
 		return
 	}
+
+	error_item := initItem(&item)
+	if error_item {
+		c.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  "item nil",
+		})
+	}
 	
-	initItem(&item)
 	saveItem(item)
+
 
 	c.JSON(http.StatusOK, responseInfo{
 		Error: false,
@@ -111,8 +119,20 @@ func updateItem(c *gin.Context) {
 
 	for _, val := range db {
 		if val.ID == id {
-			actualizarCamposManuales(item, &val)
-			actualizarCamposAutomaticos(&val)
+			error_item := actualizarCamposManuales(item, &val)
+			if error_item {
+				c.JSON(http.StatusBadRequest, responseInfo{
+					Error: true,
+					Data:  "item nil",
+				})
+			}
+			error_item = actualizarCamposAutomaticos(&val)
+			if error_item {
+				c.JSON(http.StatusBadRequest, responseInfo{
+					Error: true,
+					Data:  "item nil",
+				})
+			}
 
 			c.JSON(http.StatusOK, responseInfo{
 				Error: false,
@@ -298,33 +318,58 @@ func obtenerSiguienteID() int {
 }
 
 // Setea el status en funcion del stock
-func setStatus(item *Item) {
+func setStatus(item *Item) bool {
+	var error bool
+	if item == nil {
+		error = true
+		return error
+	}
+
 	if item.Stock == 0 {
 		item.Status = "INACTIVE"
 	} else {
 		item.Status = "ACTIVE"
 	}
+	return error
 }
 
-func initItem(item *Item){
+func initItem(item *Item) bool{
+	var error bool
+	if item == nil {
+		error = true
+		return error
+	}
 	item.ID = obtenerSiguienteID()
 	dt := time.Now()
 	item.CreatedAt = dt
-	actualizarCamposAutomaticos(item)
+	error = actualizarCamposAutomaticos(item)
+	return error
 }
 
-func actualizarCamposAutomaticos(item *Item){
+func actualizarCamposAutomaticos(item *Item) bool{
+	var error bool
+	if item == nil {
+		error = true
+		return error
+	}
 	dt := time.Now()
 	item.UpdatedAt = dt
-	setStatus(item)
+	error = setStatus(item)
+	return error
 }
 
-func actualizarCamposManuales(item Item, val *Item){
+func actualizarCamposManuales(item Item, val *Item)bool{
+	var error bool
+	if val == nil {
+		error = true
+		return error
+	}
 	val.Code = item.Code
 	val.Title = item.Title
 	val.Description = item.Description
 	val.Price = item.Price
 	val.Stock = item.Stock
+	return error
 }
 
 func saveItem(item Item){
