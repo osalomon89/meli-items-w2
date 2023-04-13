@@ -18,15 +18,15 @@ const port = ":9001"
 
 // Articulos   (las claves del json se obtienen en minusculas como "buena practicas")
 type Item struct {
-	ID          int    `json:"id"` //El id no se debe mandar aca si no automaticamente
-	Code        string `json:"code"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Price       int    `json:"price"`
-	Stock       int    `json:"stock"`
-	Status      string `json:"status"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          int       `json:"id"` //El id no se debe mandar aca si no automaticamente
+	Code        string    `json:"code"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Price       int       `json:"price"`
+	Stock       int       `json:"stock"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"create_at"`
+	UpdatedAt   time.Time `json:"update_at"`
 }
 
 var db []Item // esta varaible hara las pases de una base de datos
@@ -105,7 +105,7 @@ func addItems(gin *gin.Context) {
 		})
 		return
 
-		//(Note: optimizar el codigo)
+		//(Note: optimizar el codigo) --> Nueva funcion?
 	}
 	if item.Code == "" {
 		gin.JSON(http.StatusBadRequest, responseInfo{
@@ -148,6 +148,9 @@ func addItems(gin *gin.Context) {
 		return
 	}
 
+	item.CreatedAt = time.Now()
+	item.UpdatedAt = item.CreatedAt
+
 	newId := generateID(db)
 	item.ID = newId
 	db = append(db, item)
@@ -170,7 +173,7 @@ func generateID(items []Item) int {
 	return maxId + 1
 }
 
-// Actualizar item
+// Listar item por id
 func getItemsById(gin *gin.Context) {
 	idParam := gin.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -191,6 +194,78 @@ func getItemsById(gin *gin.Context) {
 			})
 		}
 	}
+}
+
+// Actualizar item por ID
+func updateItems(gin *gin.Context) {
+	idParam := gin.Param("id")
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+		})
+		return
+	}
+
+	item := findItemById(id)
+	if item == nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("item with ID %d not found", id),
+		})
+		return
+	}
+
+	var updateItem Item
+	err = gin.BindJSON(&updateItem)
+	if err != nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("error binding json: %s", err.Error()),
+		})
+		return
+	}
+
+	//Reescribir en una funcion (updateFields)
+	if updateItem.Code != "" {
+		item.Code = updateItem.Code
+	}
+	if updateItem.Title != "" {
+		item.Title = updateItem.Title
+	}
+	if updateItem.Description != "" {
+		item.Description = updateItem.Description
+	}
+	if updateItem.Price != 0 {
+		item.Price = updateItem.Price
+	}
+	if updateItem.Stock != 0 {
+		item.Stock = updateItem.Stock
+	}
+	//Por si el stock cambia a 0, entonces se debe poner statos Inactivo
+	if updateItem.Stock == 0 {
+		item.Status = "INACTIVE"
+	}
+	//hora de actualizacion
+	item.UpdatedAt = time.Now()
+
+	gin.JSON(http.StatusOK, responseInfo{
+		Error: false,
+		Data:  item,
+	})
+
+}
+
+// Buscar id en slice
+func findItemById(id int) *Item {
+	for i := range db {
+		if db[i].ID == id {
+			return &db[i]
+		}
+	}
+	return nil
 }
 
 //Pendiente
