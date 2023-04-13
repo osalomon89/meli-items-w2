@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"encoding/json" // json
 	"encoding/json"
 	"fmt"
 	"net/http" //permite crear u obtener los status (errors) //?
@@ -70,10 +69,12 @@ func main() {
 	route.GET("/v1/items", getItems)
 	//Guardar un item
 	route.POST("/v1/items", addItems)
-	//Listar Items by ID
+	//Listar item by ID
 	route.GET("/v1/items/:id", getItemsById)
-	//Actualizar Items by ID
+	//Actualizar item by ID
 	route.PUT("/v1/items/:id", updateItems)
+	//Eliminar item by Id
+	route.DELETE("/v1/items/:id", deleteItem)
 
 	//Hagamos que nuestras Api corra en el puerto que definimos (9001)
 	route.Run(port)
@@ -268,6 +269,49 @@ func findItemById(id int) *Item {
 	return nil
 }
 
+// Funcion Delete
+func deleteItem(gin *gin.Context) {
+	idParam := gin.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+		})
+		return
+	}
+
+	item := findItemById(id)
+	if item == nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("item with ID %d not found", id),
+		})
+		return
+	}
+
+	for i, item := range db {
+		if item.ID == id {
+			db = append(db[:i], db[i+1:]...)
+			break
+		}
+	}
+
+	gin.JSON(http.StatusOK, responseInfo{
+		Error: false,
+		Data:  "Item delete successfully.",
+	})
+
+}
+
 //Pendiente
 //Agregar funcion que valide si hay otro codigo creado
-//Crear funcion para agregar el status y la fecha de creacion o actualizacion
+/*
+
+Refactorizar codigo -->
+
+CREAR FUNCION PARA GUARDAR ITEM (simplifica additem) -
+CREAR FUNCION PARA ACTUALIZAR ITEM (simplifica update)
+
+
+*/
