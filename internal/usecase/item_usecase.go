@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"gigigarino/challengeMELI/internal/domain"
+	"gigigarino/challengeMELI/internal/domain/port"
 )
 
 /*
@@ -17,44 +19,38 @@ se definen todas las funciones
 
 //definimos una interface
 
-type ItemUsecase interface {
-	//metodos 
-	GetAllItems() []domain.Item
-	GetItemById(id int) *domain.Item
-	//GetListaInicial() []domain.Item
-	AddItem (item domain.Item)(*domain.Item, error)
-}
-
-
 //definimos una estructura
 type itemUsecase struct {
-	repo domain.ItemRepository
+	repo port.ItemRepository
 }
 
 //funcion new
-func NewItemUsecase(repo domain.ItemRepository) ItemUsecase {
-	return &itemUsecase{
+func NewItemUsecase(repo port.ItemRepository) port.ItemUsecase {
+	return itemUsecase{
 		repo: repo,
 	}
 }
 
-func (u *itemUsecase) Index() []domain.Item {
+/* --------GET --------*/
+func (u itemUsecase) Index() []domain.Item {
 	return u.repo.Index()
 }
 
-func (u *itemUsecase) GetListaInicial() []domain.Item{
+func (u itemUsecase) GetListaInicial() []domain.Item{
 	return u.repo.GetListaInicial()
 }
 
-func (u *itemUsecase) GetAllItems() []domain.Item{
+func (u itemUsecase) GetAllItems() []domain.Item{
 	return u.repo.GetAllItems()
 }
 
-func(u *itemUsecase) GetItemById(id int) *domain.Item {
+func(u itemUsecase) GetItemById(id int) *domain.Item {
 	return u.repo.GetItemById(id)
 }
 
-func(u* itemUsecase) AddItem(item domain.Item) (*domain.Item, error){
+
+/*------------POST-----------*/
+func(u itemUsecase) AddItem(item domain.Item) (*domain.Item, error){
 	items := u.repo.GetAllItems()
 	for _, b := range items{
 		if b.ID == item.ID {
@@ -63,4 +59,30 @@ func(u* itemUsecase) AddItem(item domain.Item) (*domain.Item, error){
 	}
 	result := u.repo.AddItem(item)
 	return result, nil
+}
+
+/*---------PUT----------------*/
+func(u itemUsecase) UpdateItem(item domain.Item) (*domain.Item, error) {
+	//validaciones y logica del negocio
+	// validación de código único, no va codigo repetido
+	//se niega
+	almacenaje := u.repo.GetItemById(item.ID)
+	if almacenaje == nil {
+		return almacenaje, fmt.Errorf("el item no existe")
+	}
+	u.ActualizarUpdateAt(&item)
+	err := u.repo.UpdateItemNuevo(item)
+	if err != nil{
+return &item,fmt.Errorf("error actualizando item")
+	}
+	return &item,nil
+}
+
+func (u itemUsecase) ActualizarUpdateAt(item *domain.Item){
+
+}
+
+
+func (u itemUsecase)UpdateItemNuevo(item domain.Item){
+
 }

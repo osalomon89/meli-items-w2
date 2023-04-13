@@ -17,10 +17,23 @@ type Item struct {
 }
 
 //aca iria la interface de repositorio pero mas adelante
+/*
 type ItemRepository interface {
+	//---------GETS---------
 	Index() []Item
 	GetListaInicial() []Item
 	GetAllItems() []Item
 	GetItemById(id int)*Item
+
+	//---------POSTS---------
 	AddItem(item Item)*Item
+
+	/*---------PUTS---------
+	UpdateItem(id int)*Item
+	UpdateItemNuevo(item Item)
+
+	//auxiliares
+	ActualizarUpdateAt(item Item)
+	
 }
+*/
