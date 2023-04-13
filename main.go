@@ -34,8 +34,8 @@ func main() {
 
 	//van los endpoint
 	/*------GETS -------*/
-	//r.GET("/", Index)
-	//r.GET("v1/listaInicial", GetListaInicial)
+	r.GET("/", ctrl.Index)
+	r.GET("v1/listaInicial", ctrl.GetListaInicial)
 	r.GET("v1/items/:id", ctrl.GetItemById)
 	r.GET("v1/items", ctrl.GetAllItems)
 

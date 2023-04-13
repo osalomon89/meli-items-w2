@@ -38,6 +38,14 @@ func NewItemUsecase(repo domain.ItemRepository) ItemUsecase {
 	}
 }
 
+func (u *itemUsecase) Index() []domain.Item {
+	return u.repo.Index()
+}
+
+func (u *itemUsecase) GetListaInicial() []domain.Item{
+	return u.repo.GetListaInicial()
+}
+
 func (u *itemUsecase) GetAllItems() []domain.Item{
 	return u.repo.GetAllItems()
 }

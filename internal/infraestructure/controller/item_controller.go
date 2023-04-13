@@ -22,26 +22,27 @@ type responseInfo struct {
 	Data  interface{} `json:"data"`
 }
 
-//nueva funcion
+//constructor --- unica funcion
 func NewItemController(usecase usecase.ItemUsecase) *ItemController {
 	return &ItemController{
 		itemUsecase: usecase,
 	}
 }
-/*
+
 // func inicializar para ver su todo funca
-func index(ctx *gin.Context) {
+func (ctrl *ItemController) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "bienvenido a mi increible api")
 }
-*/
-/*------metodo getLista inicial de item -------
-func (ctrl *ItemController) GetListaInicial(ctx *gin.Context) {
+
+
+/*------metodo getLista inicial de item -------*/
+
+func (ctrl *ItemController) GetListaInicial(ctx *gin.Context){
 	ctx.JSON(http.StatusOK, responseInfo{
 		Error: false,
-		Data:  ctrl.ItemUsecase.GetListaInicial(),
+		Data:  ctrl.itemUsecase.GetAllItems(),
 	})
 }
-*/
 
 
 //get all items

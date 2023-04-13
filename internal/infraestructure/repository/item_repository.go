@@ -15,10 +15,14 @@ func NewItemRepository() domain.ItemRepository {
 	return &itemRepository{}
 }
 
-/*func (r *itemRepository) GetListaInicial() []domain.Item {
+func (r *itemRepository) Index() []domain.Item{
 	return r.articulos
 }
-*/
+
+func (r *itemRepository) GetListaInicial() []domain.Item {
+	return r.articulos
+}
+
 func (r *itemRepository) GetAllItems() []domain.Item {
 	return r.articulos
 }
