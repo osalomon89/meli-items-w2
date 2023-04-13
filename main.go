@@ -10,6 +10,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/*
+	FALTA
+	El campo code debe ser único.
+	? Los campos code, title, description, price, stock, photos son obligatórios.
+
+	-----
+	limit: Es el tamaño solicitado de resultados en la página. Es un parámetro opcional,
+	su valor default es 10, y su valor máximo es 20.
+
+	La respuesta debe seguir la siguiente estructura de campos:
+	totalPages: El número total de items que contienen resultados para la búsqueda hecha.
+	data: 		Un array con los objetos conteniendo los items solicitados en el request.
+*/
+
 // Puerto de escucha declarado como const
 const port string = "localhost:8888"
 
