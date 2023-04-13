@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"code\": \"LPTP27324354\",\n        \"title\": \"Laptop Dell XPS 13\",\n        \"description\": \"Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM\",\n        \"price\": 2000000,\n        \"stock\": 5,\n        \"status\": \"ACTIVE\"\n    },\n    {\n        \"code\": \"LPTP27324355\",\n        \"title\": \"Laptop HP Spectre x360\",\n        \"description\": \"HP Spectre x360 con procesador Intel Core i7 de 11.ª generación y 8GB de memoria RAM\",\n        \"price\": 1800000,\n        \"stock\": 3,\n        \"status\": \"ACTIVE\"\n    }\n]",
+					"raw": "[\n    {\n        \"code\": \"LPTP27324354\",\n        \"title\": \"Laptop Dell XPS 13\",\n        \"description\": \"Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM\",\n        \"price\": 2000000,\n        \"stock\": 0\n    },\n    {\n        \"code\": \"LPTP27324355\",\n        \"title\": \"Laptop HP Spectre x360\",\n        \"description\": \"HP Spectre x360 con procesador Intel Core i7 de 11.ª generación y 8GB de memoria RAM\",\n        \"price\": 1800000,\n        \"stock\": 3\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -40,7 +40,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "    {\n        \"code\": \"LPTP27324354\",\n        \"title\": \"MODIFICAR Laptop Dell XPS 13\",\n        \"description\": \"MODIFICAR Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM\",\n        \"price\": 100,\n        \"stock\": 8,\n        \"status\": \"ACTIVE\"\n    }",
+					"raw": "    {\n        \"code\": \"LPTP27324354\",\n        \"title\": \"MODIFICAR Laptop Dell XPS 13\",\n        \"description\": \"MODIFICAR Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM\",\n        \"price\": 100,\n        \"stock\": 8\n    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -48,7 +48,7 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8888/v1/items/2",
+					"raw": "localhost:8888/v1/items/4",
 					"host": [
 						"localhost"
 					],
@@ -56,7 +56,7 @@
 					"path": [
 						"v1",
 						"items",
-						"2"
+						"4"
 					]
 				}
 			},

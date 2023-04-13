@@ -41,7 +41,7 @@ func main() {
 			Stock:       3,
 			Status:      "ACTIVE",
 			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-			UpdatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+			UpdatedAt:   time.Time{},
 		},
 
 		{
@@ -53,7 +53,7 @@ func main() {
 			Stock:       2,
 			Status:      "ACTIVE",
 			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-			UpdatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+			UpdatedAt:   time.Time{},
 		},
 
 		{
@@ -65,7 +65,7 @@ func main() {
 			Stock:       42,
 			Status:      "ACTIVE",
 			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-			UpdatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+			UpdatedAt:   time.Time{},
 		},
 	}
 
@@ -79,6 +79,7 @@ func main() {
 
 	// Get
 	router.GET("v1/items", listItems)
+	//GET v1/items?status={status}&limit={limit}
 	router.GET("v1/items/:id", getItemByID)
 
 	// Post
@@ -116,11 +117,21 @@ func addItem(c *gin.Context) {
 	for i := range newSliceItem {
 		newSliceItem[i].Id = len(itemsDB) + i + 1
 		newSliceItem[i].CreatedAt = time.Now()
-		newSliceItem[i].UpdatedAt = time.Now()
+		newSliceItem[i].UpdatedAt = time.Time{}
+		if newSliceItem[i].Stock > 0 {
+			newSliceItem[i].Status = "ACTIVE"
+		} else {
+			newSliceItem[i].Status = "INACTIVE"
+		}
+
 	}
 
 	saveItem(newSliceItem)
 	c.IndentedJSON(http.StatusCreated, newSliceItem)
+
+}
+
+func Status() {
 
 }
 
@@ -196,6 +207,12 @@ func updateItem(c *gin.Context) {
 	if itemToUpdatePtr == nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
 		return
+	}
+
+	if itemToUpdate.Stock > 0 {
+		itemToUpdate.Status = "ACTIVE"
+	} else {
+		itemToUpdate.Status = "INACTIVE"
 	}
 
 	itemToUpdatePtr.Code = itemToUpdate.Code
