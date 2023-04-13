@@ -70,11 +70,11 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", index)
-	r.GET("/items", getItem)
-	r.POST("/items", addItem)
-	r.GET("/items/:id", getItemById)
-	r.PUT("/items/:id", updateItem)
-	r.DELETE("/items/:id", deleteItem)
+	r.GET("v1/items", getItem)
+	r.POST("v1/items", addItem)
+	r.GET("v1/items/:id", getItemById)
+	r.PUT("v1/items/:id", updateItem)
+	r.DELETE("v1/items/:id", deleteItem)
 
 	log.Println("Server listening on port", port)
 
