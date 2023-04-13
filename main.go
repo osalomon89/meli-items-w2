@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 )
@@ -13,11 +14,11 @@ const port = ":9000"
 
 type Item struct {
 	Id          int     `json:"id"`
-	Code        string  `json:"code"`
-	Title       string  `json:"title"`
-	Descripcion string  `json:"descripcion"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
+	Code        string  `json:"code" validate:"required"`
+	Title       string  `json:"title" validate:"required"`
+	Descripcion string  `json:"descripcion" validate:"required"`
+	Price       float64 `json:"price" validate:"required"`
+	Stock       int     `json:"stock" validate:"required"`
 	Status      string  `json:"status"`
 	CreatAt     string  `json:"creat_at"`
 	UpdateAt    string  `json:"update_at"`
@@ -27,8 +28,9 @@ type Item struct {
 var db []Item
 
 func main() {
+
 	item1 := Item{
-		Id:          1,
+		Id:          rand.Int(),
 		Code:        "escritorio1234",
 		Title:       "Escritorio",
 		Descripcion: "Excelente escritorio confortable",
@@ -40,7 +42,7 @@ func main() {
 	}
 
 	item2 := Item{
-		Id:          2,
+		Id:          rand.Int(),
 		Code:        "Sofa1234",
 		Title:       "Sofa",
 		Descripcion: "Comodo sofa para tardear",
@@ -52,7 +54,7 @@ func main() {
 	}
 
 	item3 := Item{
-		Id:          3,
+		Id:          rand.Int(),
 		Code:        "Iphone1234",
 		Title:       "Iphone 20",
 		Descripcion: "Dispositivo de alta gama",
@@ -95,13 +97,22 @@ func addItem(c *gin.Context) {
 	request := c.Request
 	var item Item
 	err := json.NewDecoder(request.Body).Decode(&item)
-	if err != nil {
+	if err := validate.Struct(item); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
 			"data":  fmt.Sprintf("Json invalido", err.Error()),
 		})
 		return
 	}
+	if VerificaRepetido(item) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  fmt.Sprintf("Código repetido", err.Error()),
+		})
+		return
+
+	}
+
 	if item.Stock > 0 {
 		item.Status = "ACTIVE"
 	} else {
@@ -160,12 +171,20 @@ func updateItem(c *gin.Context) {
 
 	var item Item
 	err = json.NewDecoder(r.Body).Decode(&item)
-	if err != nil {
+	if err := validate.Struct(item); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
 			"data":  fmt.Sprintf("Json invalido", err.Error()),
 		})
 		return
+	}
+	if VerificaRepetido(item) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  fmt.Sprintf("Código repetido", err.Error()),
+		})
+		return
+
 	}
 
 	for i, v := range db {
@@ -239,4 +258,12 @@ type ResponseInfo struct {
 	Data  string `json:"data"`
 }
 
-//Función que nos dice si el código ya existe
+// Función que nos dice si el código es repetivo
+func VerificaRepetido(item Item) bool {
+	for _, i := range db {
+		if i.Code == item.Code {
+			return true
+		}
+	}
+	return false
+}
