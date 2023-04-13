@@ -78,8 +78,8 @@ func main() {
 	// ******** ENDPOINTS *******
 
 	// Get
-	router.GET("v1/items", listItems)
-	//GET v1/items?status={status}&limit={limit}
+	//router.GET("v1/items", listItems)
+	router.GET("v1/items", getAllFiltered)
 	router.GET("v1/items/:id", getItemByID)
 
 	// Post
@@ -131,10 +131,6 @@ func addItem(c *gin.Context) {
 
 }
 
-func Status() {
-
-}
-
 // Obtener Item por id
 func getItemByID(c *gin.Context) {
 	// Obtener el ID del parámetro de la URL
@@ -165,6 +161,42 @@ func getItemByID(c *gin.Context) {
 	} else {
 		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
 	}
+
+}
+
+// obtener items con filtros
+
+func getAllFiltered(c *gin.Context) {
+	status := c.Query("status")
+
+	var dbFiltered []Item
+
+	if status != "ACTIVE" && status != "INACTIVE" && status != "ALL" {
+		c.Error(fmt.Errorf("status inválido"))
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	for _, item := range itemsDB {
+		if item.Status == status {
+			dbFiltered = append(dbFiltered, item)
+		}
+
+	}
+
+	if len(itemsDB) == 0 {
+		c.Error(fmt.Errorf("no hay items disponibles"))
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if len(dbFiltered) == 0 {
+		c.Error(fmt.Errorf("no hay items disponibles"))
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, dbFiltered)
 
 }
 
