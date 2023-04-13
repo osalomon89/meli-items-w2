@@ -7,10 +7,15 @@ import (
 	"time"
 	"strconv"
 	"github.com/gin-gonic/gin"
+	dom "github.com/osalomon89/neocamp-meli-w2/domain"
+	controllerService "github.com/osalomon89/neocamp-meli-w2/controller"
+	
+	useCaseService "github.com/osalomon89/neocamp-meli-w2/usecases"
+	
 )
 
 const port = ":9000"
-
+/*
 type Item struct {
 	ID     int    `json:"id"`
 	Code string `json:"code"`
@@ -24,11 +29,11 @@ type Item struct {
 	UpdatedAt time.Time `json:"updated_at"`
 
 }
-
-var db []Item
+*/
+var db []dom.Item
 
 func main() {
-	item1 := Item{
+	item1 := dom.Item{
 		ID:          0,
 		Code:        "SAM27324354",
 		Title:       "Tablet Samsung Galaxy Tab S7",
@@ -41,7 +46,7 @@ func main() {
 		UpdatedAt:   time.Now(),
 	}
 	
-	item2 := Item{
+	item2 := dom.Item{
 		ID:          1,
 		Code:        "SAM2555434",
 		Title:       "Teclado logitech",
@@ -54,6 +59,9 @@ func main() {
 		UpdatedAt:   time.Now(),
 	}
 	
+	useCasesSerce := useCaseService.NewUseCases()
+
+	controllerService := controllerService.NewController(useCasesSerce)
 
 	db = append(db, item1, item2)
 
@@ -63,8 +71,9 @@ func main() {
 
 	r.GET("/api/v1/items", getItems)
 	r.GET("/api/v1/items/:id", getItemsById)
-	r.PUT("/api/v1/items/:id", updateItem)
+	r.PUT("/api/v1/items/:id", controllerService.UpdateItem)
 	r.POST("/api/v1/items", addItem)
+	r.DELETE("/api/v1/items/:id", deleteItem)
 
 	r.Run(port)
 }
@@ -88,7 +97,7 @@ func main() {
 		})
 	}
 
-	func saveItem(item *Item) {
+	func saveItem(item *dom.Item) {
 		item.CreatedAt = time.Now()
 		item.UpdatedAt = time.Now()
 		item.ID = obtenerUltimoId(db)+1
@@ -99,7 +108,7 @@ func main() {
 		request := c.Request
 		body := request.Body
 	
-		var item Item
+		var item dom.Item
 	
 		err := json.NewDecoder(body).Decode(&item)
 		if err != nil {
@@ -139,7 +148,7 @@ func main() {
 
 
 
-
+/*
 	func updateItem(ctx *gin.Context) {
 		idParam := ctx.Param("id")
 		id, err := strconv.Atoi(idParam)
@@ -175,12 +184,12 @@ func main() {
 	
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "No se encontro el item"})
 	}
-
+*/
 
 
 	
 	
-	func obtenerUltimoId(items []Item) int {
+	func obtenerUltimoId(items []dom.Item) int {
 		var ultimoId int
 		for _, item := range items {
 			if item.ID > ultimoId {
@@ -193,9 +202,46 @@ func main() {
 	func getItemsById(c *gin.Context){
 		idParam := c.Param("id")
 		id, err := strconv.Atoi(idParam)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": true,
+				"data":  err.Error(),
+			})
+			return
+		}
+		for _, i := range db{
+			if i.ID == id {
+				c.JSON(http.StatusOK, responseInfo{
+					Error: false,
+					Data: i,
+				})
+			}
+		}
 
-
+		c.JSON(http.StatusNotFound, responseInfo{
+			Error: true,
+			Data:  "No se encontro el item",
+		})
 	}
+
+func deleteItem(c *gin.Context){
+	idParam := c.Param("id")
+	_, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+
+
+
+
+}
+
+	
 	
 
 
