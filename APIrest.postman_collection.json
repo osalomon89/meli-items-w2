@@ -1,0 +1,125 @@
+{
+	"info": {
+		"_postman_id": "85c2cb41-5301-4ca8-9a05-74160112c43a",
+		"name": "APIrest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "addItem",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"code\": \"LPTP27324354\",\n        \"title\": \"Laptop Dell XPS 13\",\n        \"description\": \"Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM\",\n        \"price\": 2000000,\n        \"stock\": 5,\n        \"status\": \"ACTIVE\"\n    },\n    {\n        \"code\": \"LPTP27324355\",\n        \"title\": \"Laptop HP Spectre x360\",\n        \"description\": \"HP Spectre x360 con procesador Intel Core i7 de 11.ª generación y 8GB de memoria RAM\",\n        \"price\": 1800000,\n        \"stock\": 3,\n        \"status\": \"ACTIVE\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8888/v1/items",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"v1",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateItem",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\n        \"code\": \"LPTP27324354\",\n        \"title\": \"MODIFICAR Laptop Dell XPS 13\",\n        \"description\": \"MODIFICAR Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM\",\n        \"price\": 100,\n        \"stock\": 8,\n        \"status\": \"ACTIVE\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8888/v1/items/2",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"v1",
+						"items",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getItemById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8888/v1/items/4",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"v1",
+						"items",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllItems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8888/v1/items",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"v1",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteItem",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:8888/v1/items/2",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"v1",
+						"items",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

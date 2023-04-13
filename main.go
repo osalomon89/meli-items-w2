@@ -29,12 +29,6 @@ type Item struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// ResponseInfo Creamos la estructura ResponseInfo y las etiquetas del JSON
-type ResponseInfo struct {
-	Error bool        `json:"error"`
-	Data  interface{} `json:"data"`
-}
-
 func main() {
 	// Instancio 3 items para agregar a la BD
 	var items = []Item{
@@ -89,26 +83,6 @@ func main() {
 
 	// Post
 	router.POST("v1/items", addItem)
-	/* Para probar
-	[
-	    {
-	        "code": "LPTP27324354",
-	        "title": "Laptop Dell XPS 13",
-	        "description": "Dell XPS 13 con procesador Intel Core i7 de 11.ª generación y 16GB de memoria RAM",
-	        "price": 2000000,
-	        "stock": 5,
-	        "status": "ACTIVE"
-	    },
-	    {
-	        "code": "LPTP27324355",
-	        "title": "Laptop HP Spectre x360",
-	        "description": "HP Spectre x360 con procesador Intel Core i7 de 11.ª generación y 8GB de memoria RAM",
-	        "price": 1800000,
-	        "stock": 3,
-	        "status": "ACTIVE"
-	    }
-	]
-	*/
 
 	// Put
 	router.PUT("v1/items/:id", updateItem)
@@ -154,9 +128,6 @@ func addItem(c *gin.Context) {
 func getItemByID(c *gin.Context) {
 	// Obtener el ID del parámetro de la URL
 	id := c.Param("id")
-
-	// Variable bandera para verificar si sí se encuentra el id solicitado
-	//isFound := false
 
 	// Para guardar el item si se encuentra
 	var itemFound Item
@@ -213,27 +184,49 @@ func updateItem(c *gin.Context) {
 		return
 	}
 
-	for _, item := range itemsDB {
-		if item.Id == idInt {
-			item.Code = itemToUpdate.Code
-			item.Title = itemToUpdate.Title
-			item.Description = itemToUpdate.Description
-			item.Price = itemToUpdate.Price
-			item.Stock = itemToUpdate.Stock
-			item.Status = itemToUpdate.Status
-			item.CreatedAt = item.CreatedAt
-			item.UpdatedAt = time.Now()
-			c.JSON(http.StatusOK, itemToUpdate)
-			break
-		} else {
-			c.AbortWithStatusJSON(http.StatusNotFound, "No se encuentra el id solicitado.")
+	var itemToUpdatePtr *Item
+
+	for i := range itemsDB {
+		if itemsDB[i].Id == idInt {
+			itemToUpdatePtr = &itemsDB[i]
 			break
 		}
 	}
+
+	if itemToUpdatePtr == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
+		return
+	}
+
+	itemToUpdatePtr.Code = itemToUpdate.Code
+	itemToUpdatePtr.Title = itemToUpdate.Title
+	itemToUpdatePtr.Description = itemToUpdate.Description
+	itemToUpdatePtr.Price = itemToUpdate.Price
+	itemToUpdatePtr.Stock = itemToUpdate.Stock
+	itemToUpdatePtr.Status = itemToUpdate.Status
+	itemToUpdatePtr.UpdatedAt = time.Now()
+
+	c.JSON(http.StatusOK, itemToUpdatePtr)
 
 }
 
 // Eliminar item
 func deleteItem(c *gin.Context) {
+	id := c.Param("id")
 
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
+		return
+	}
+
+	for i, item := range itemsDB {
+		if item.Id == idInt {
+			itemsDB = append(itemsDB[:i], itemsDB[i+1:]...)
+			c.JSON(http.StatusOK, "item eliminado con éxito id: "+id)
+			return
+		}
+	}
+
+	c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
 }
