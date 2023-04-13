@@ -1,40 +1,29 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"strconv"
 	"github.com/gin-gonic/gin"
-	"time"
-	"sort"
+	ctrl "github.com/osalomon89/meli-items-w2/internal/controller"
+	repo "github.com/osalomon89/meli-items-w2/internal/repository"
+	usec "github.com/osalomon89/meli-items-w2/internal/usecase"
 )
 
 const port = ":9000"
 
-type Item struct {
-	ID          int    `json:"id"`
-	Code        string `json:"code"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Price       int    `json:"price"`
-	Stock       int    `json:"stock"`
-	Status      string `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-var db []Item
+// var db []dom.Item
 
 func main() {
 
+	itemRepository := repo.NewItemRepository()
+	itemUsecase := usec.NewItemUsecase(itemRepository)
+	itemController := ctrl.NewItemController(itemUsecase)
+
 	r := gin.Default()
 
-	r.POST("v1/items", addItem)
-	r.PUT("v1/items/:id", updateItem)
-	r.GET("v1/items/:id", getItem)
-	r.DELETE("v1/items/:id", deleteItem) 
-	r.GET("v1/items", getItems) 
+	r.POST("v1/items", itemController.AddItem)
+	r.PUT("v1/items/:id", itemController.UpdateItem)
+	r.GET("v1/items/:id", itemController.GetItem)
+	r.DELETE("v1/items/:id", itemController.DeleteItem) 
+	//r.GET("v1/items", getItems) 
 
 	r.Run(port)
 
@@ -43,12 +32,12 @@ func main() {
 
 
 // Funciones para los endpoints -----------------------------
-
+/*
 func addItem(c *gin.Context) {
 	request := c.Request
 	body := request.Body
 
-	var item Item
+	var item dom.Item
 
 	if err := json.NewDecoder(body).Decode(&item); err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
@@ -58,13 +47,13 @@ func addItem(c *gin.Context) {
 		return
 	}
 
+	// Empieza logica de negocio
 	if codeRepetido(item) {
 		
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
 			Data:  fmt.Sprintf("El code %s está duplicado", item.Code),
 		})
-		
 		return
 	}
 
@@ -77,7 +66,7 @@ func addItem(c *gin.Context) {
 	}
 	
 	saveItem(item)
-
+	// Termina logica de negocio
 
 	c.JSON(http.StatusOK, responseInfo{
 		Error: false,
@@ -99,7 +88,7 @@ func updateItem(c *gin.Context) {
 		return
 	}
 
-	var item Item
+	var item dom.Item
 	err := json.NewDecoder(body).Decode(&item)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
@@ -190,7 +179,7 @@ func deleteItem(c *gin.Context) {
 		return
 	}
 
-	var db_copy []Item
+	var db_copy []dom.Item
 	var encontrado bool
 
 	for _,value := range db {
@@ -216,7 +205,8 @@ func deleteItem(c *gin.Context) {
 	})
 	
 }
-
+*/
+/*
 func getItems(c *gin.Context){
 	status := c.Query("status")
 	limitParam := c.DefaultQuery("limit", "10")
@@ -230,8 +220,8 @@ func getItems(c *gin.Context){
 		return
 	}
 
-	var db_copy []Item
-	var db_copy_sub []Item
+	var db_copy []dom.Item
+	var db_copy_sub []dom.Item
 
 	if status == "ACTIVE" {
 		for _,value := range db {
@@ -267,17 +257,7 @@ func getItems(c *gin.Context){
 			Data:  db,
 		})
 	}
-}
-
-func armarDB(db_copy []Item, limit int) []Item{
-	sort.Slice(db_copy, func(i, j int) bool {
-		return db_copy[i].UpdatedAt.After(db_copy[j].UpdatedAt)
-	})
-	if limit > len(db_copy){
-		limit = len(db_copy)
-	}
-	return db_copy[0:limit]
-}
+}*/
 
 
 
@@ -286,22 +266,20 @@ func armarDB(db_copy []Item, limit int) []Item{
 
 
 // Funciones auxiliares ---------------------------------------
-
+/*
 type responseInfo struct {
 	Error bool        `json:"error"`
 	Data  interface{} `json:"data"`
 }
 
 // Devuelve true si el code ya existe
-func codeRepetido(item Item) bool {
+func codeRepetido(item dom.Item) bool {
 	var repetido bool
-	fmt.Println("Paso 1")
 	for _, val := range db {
 		if val.Code == item.Code {
 			repetido = true
 		}
-	}
-	fmt.Println("Paso 2")
+	}	
 	return repetido
 }
 
@@ -318,7 +296,7 @@ func obtenerSiguienteID() int {
 }
 
 // Setea el status en funcion del stock
-func setStatus(item *Item) bool {
+func setStatus(item *dom.Item) bool {
 	var error bool
 	if item == nil {
 		error = true
@@ -333,7 +311,7 @@ func setStatus(item *Item) bool {
 	return error
 }
 
-func initItem(item *Item) bool{
+func initItem(item *dom.Item) bool{
 	var error bool
 	if item == nil {
 		error = true
@@ -346,7 +324,7 @@ func initItem(item *Item) bool{
 	return error
 }
 
-func actualizarCamposAutomaticos(item *Item) bool{
+func actualizarCamposAutomaticos(item *dom.Item) bool{
 	var error bool
 	if item == nil {
 		error = true
@@ -358,7 +336,7 @@ func actualizarCamposAutomaticos(item *Item) bool{
 	return error
 }
 
-func actualizarCamposManuales(item Item, val *Item)bool{
+func actualizarCamposManuales(item dom.Item, val *dom.Item)bool{
 	var error bool
 	if val == nil {
 		error = true
@@ -372,7 +350,19 @@ func actualizarCamposManuales(item Item, val *Item)bool{
 	return error
 }
 
-func saveItem(item Item){
+
+func saveItem(item dom.Item){
 	db = append(db, item)
 }
-
+*/
+/*
+func armarDB(db_copy []dom.Item, limit int) []dom.Item{
+	sort.Slice(db_copy, func(i, j int) bool {
+		return db_copy[i].UpdatedAt.After(db_copy[j].UpdatedAt)
+	})
+	if limit > len(db_copy){
+		limit = len(db_copy)
+	}
+	return db_copy[0:limit]
+}
+*/
