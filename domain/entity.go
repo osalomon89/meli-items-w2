@@ -17,8 +17,8 @@ type Item struct {
 type ItemRepository interface {
 	AddItem(item Item) *Item
 	UpdateItem(item Item, id int) *Item
-	GetItem(id int) *Item
+	GetItemById(id int) *Item
 	DeleteItem(id int) *Item
-	GetItems(status string, limit int) []Item
+	ListItem(status string, limit int) []Item
 	GetDB() []Item
 }

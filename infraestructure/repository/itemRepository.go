@@ -1,32 +1,34 @@
 package repository
 
 import (
+	"errors"
 	"math/rand"
 	"time"
 
 	dom "meli-items-w2/domain"
 )
 
-var countId = 0
-
 var repo itemRepository
 
 type itemRepository struct {
 	itemsDB []dom.Item
+	countId int
 }
 
-// Añadir item
+// AddItem Añadir item
 func (iRepo itemRepository) AddItem(item dom.Item) *dom.Item {
-	// Id Incremental
-	countId++
-	item.Id = countId
+	//TODO verificar datos de entrada y devolver nil, posiblemente encerrar todo en un if
 
-	// CreatedAt toma el momento de creación, UpdatedAt toma hora 0
+	// Id Incremental
+	iRepo.countId++
+	item.Id = iRepo.countId
+
+	// CreatedAt toma el momento de creación, UpdatedAt toma hora 0 por default
 	item.CreatedAt = time.Now()
-	item.UpdatedAt = time.Time{}
 
 	// Asignamos status de acuerdo al stock
 	item.Status = statusCheck(item.Stock)
+	// Verificamos el código único
 	item.Code = codeCheck(item.Code)
 
 	// Guardo
@@ -35,14 +37,42 @@ func (iRepo itemRepository) AddItem(item dom.Item) *dom.Item {
 	return &item
 }
 
-func (iRepo itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
-	//TODO implement me
-	panic("implement me")
+// GetItemById Obtener item por ID
+func (iRepo *itemRepository) GetItemById(id int) *dom.Item {
+	for _, item := range iRepo.itemsDB {
+		if item.Id == id {
+			return &item
+		}
+	}
+	return nil
 }
 
-func (iRepo itemRepository) GetItem(id int) *dom.Item {
-	//TODO implement me
-	panic("implement me")
+// UpdateItem modificar item
+func (iRepo itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
+	itemFound := iRepo.GetItemById(id)
+
+	if itemFound == nil {
+		return nil
+	}
+
+	itemFound.Code = codeCheck(item.Code)
+	itemFound.Title = item.Title
+	itemFound.Description = item.Description
+	itemFound.Price = item.Price
+	itemFound.Stock = item.Stock
+	itemFound.Status = statusCheck(item.Stock)
+	itemFound.UpdatedAt = time.Now()
+
+	validateItem(item)
+
+	for i, v := range iRepo.itemsDB {
+		if v.Id == itemFound.Id {
+			iRepo.itemsDB[i] = *itemFound
+			return itemFound
+		}
+	}
+
+	return nil
 }
 
 func (iRepo itemRepository) DeleteItem(id int) *dom.Item {
@@ -50,7 +80,7 @@ func (iRepo itemRepository) DeleteItem(id int) *dom.Item {
 	panic("implement me")
 }
 
-func (iRepo itemRepository) GetItems(status string, limit int) []dom.Item {
+func (iRepo itemRepository) ListItem(status string, limit int) []dom.Item {
 	//TODO implement me
 	panic("implement me")
 }
@@ -74,6 +104,8 @@ func statusCheck(stock int) string {
 }
 
 func codeCheck(code string) string {
+	// Sólo en caso tal de que nos quedemos atrapados en un bucle
+	attempts := 0
 
 	// Bucle para que checkee cuantas veces sea necesario
 	for {
@@ -90,8 +122,13 @@ func codeCheck(code string) string {
 		if codeFound == false {
 			return code
 		}
+		attempts++
+		if attempts > 10 {
+			break
+		}
 		code = generateCode()
 	}
+	return ""
 }
 
 func generateCode() string {
@@ -106,4 +143,21 @@ func generateCode() string {
 
 	// Retornar el código generado
 	return string(code)
+}
+
+func validateItem(item dom.Item) error {
+
+	if item.Title == "" || item.Description == "" {
+		return errors.New("tittle or description are required")
+	}
+
+	if item.Price < 0 || item.Stock < 0 {
+		return errors.New("price or stock should be greater than 0")
+	}
+
+	if item.Code == "" || len(item.Code) != 11 {
+		return errors.New("code is not valid")
+	}
+
+	return nil
 }

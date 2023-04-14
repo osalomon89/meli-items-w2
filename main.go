@@ -146,22 +146,11 @@ func getItemByID(c *gin.Context) {
 	// Obtener el ID del parámetro de la URL
 	id := c.Param("id")
 
-	// Para guardar el item si se encuentra
-	var itemFound dom.Item
-
 	// Casteando el param que llega en string a int
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, err)
 		return
-	}
-
-	// Buscamos el id que necesitamos
-	for _, item := range itemsDB {
-		if item.Id == idInt {
-			itemFound = item
-			break
-		}
 	}
 
 	// Retornamos ok si encontramos el id, no es necesario igular a true en la condición ya que en Go porque el valor booleano es en sí una condición en el caso if found {...}
@@ -239,22 +228,9 @@ func updateItem(c *gin.Context) {
 
 	var itemToUpdatePtr *dom.Item
 
-	for i := range itemsDB {
-		if itemsDB[i].Id == idInt {
-			itemToUpdatePtr = &itemsDB[i]
-			break
-		}
-	}
-
 	if itemToUpdatePtr == nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
 		return
-	}
-
-	if itemToUpdate.Stock > 0 {
-		itemToUpdate.Status = "ACTIVE"
-	} else {
-		itemToUpdate.Status = "INACTIVE"
 	}
 
 	itemToUpdatePtr.Code = itemToUpdate.Code
