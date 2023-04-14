@@ -4,50 +4,50 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/osalomon89/meli-items-w2/internal/domain"
+	"github.com/osalomon89/meli-items-w2/internal/entity"
 )
 
 type ItemUsecase interface {
-	AddItem(item domain.Item) (*domain.Item, error)
-	UpdateItemById(item domain.Item, id int) (*domain.Item, error)
-	GetItemById(id int) *domain.Item
-	DeleteItemById(id int) *domain.Item
-	GetAllItems(status string, limit int) []domain.Item
+	AddItem(item entity.Item) (*entity.Item, error)
+	UpdateItemById(item entity.Item, id int) (*entity.Item, error)
+	GetItemById(id int) *entity.Item
+	DeleteItemById(id int) *entity.Item
+	GetAllItems(status string, limit int) []entity.Item
 }
 
 type itemUsecase struct {
-	repo domain.ItemRepository
+	repo entity.ItemRepository
 }
 
-func NewItemUsecase(repo domain.ItemRepository) ItemUsecase {
+func NewItemUsecase(repo entity.ItemRepository) ItemUsecase {
 	return &itemUsecase{
 		repo: repo,
 	}
 }
 
-func (uc *itemUsecase) AddItem(item domain.Item) (*domain.Item, error) {
+func (uc *itemUsecase) AddItem(item entity.Item) (*entity.Item, error) {
 	if err := uc.validateCode(item.Code); err != nil {
 		return nil, err
 	}
 	return uc.repo.AddItem(item), nil
 }
 
-func (uc *itemUsecase) UpdateItemById(item domain.Item, id int) (*domain.Item, error) {
+func (uc *itemUsecase) UpdateItemById(item entity.Item, id int) (*entity.Item, error) {
 	if err := uc.validateCodeUpdate(item, id); err != nil {
 		return nil, err
 	}
 	return uc.repo.UpdateItem(item, id), nil
 }
 
-func (uc *itemUsecase) GetItemById(id int) *domain.Item {
+func (uc *itemUsecase) GetItemById(id int) *entity.Item {
 	return uc.repo.GetItem(id)
 }
 
-func (uc *itemUsecase) DeleteItemById(id int) *domain.Item {
+func (uc *itemUsecase) DeleteItemById(id int) *entity.Item {
 	return uc.repo.DeleteItem(id)
 }
 
-func (uc *itemUsecase) GetAllItems(status string, limit int) []domain.Item {
+func (uc *itemUsecase) GetAllItems(status string, limit int) []entity.Item {
 	return uc.repo.GetItems(status, limit)
 }
 
@@ -62,7 +62,7 @@ func (uc *itemUsecase) validateCode(code string) error {
 	return nil
 }
 
-func (uc *itemUsecase) validateCodeUpdate(item domain.Item, id int) error {
+func (uc *itemUsecase) validateCodeUpdate(item entity.Item, id int) error {
 
 	for _, v := range uc.repo.GetDB() {
 		if v.Code == item.Code && v.Id != id {

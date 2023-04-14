@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/osalomon89/meli-items-w2/internal/domain"
+	"github.com/osalomon89/meli-items-w2/internal/entity"
 	"github.com/osalomon89/meli-items-w2/internal/usecase"
 )
 
@@ -29,7 +29,7 @@ type responseInfo struct {
 func (ctrl *ItemController) AddItem(c *gin.Context) {
 	body := c.Request.Body
 
-	var item domain.Item
+	var item entity.Item
 
 	err := json.NewDecoder(body).Decode(&item)
 	if err != nil {
@@ -68,7 +68,7 @@ func (ctrl *ItemController) UpdateItem(c *gin.Context) {
 		return
 	}
 
-	var item domain.Item
+	var item entity.Item
 
 	err = json.NewDecoder(body).Decode(&item)
 	if err != nil {

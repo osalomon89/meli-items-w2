@@ -4,20 +4,20 @@ import (
 	"sort"
 	"time"
 
-	"github.com/osalomon89/meli-items-w2/internal/domain"
+	"github.com/osalomon89/meli-items-w2/internal/entity"
 )
 
 type itemRepository struct {
-	db []domain.Item
+	db []entity.Item
 }
 
 var countId int = 0
 
-func NewItemRepository() domain.ItemRepository {
+func NewItemRepository() entity.ItemRepository {
 	return &itemRepository{}
 }
 
-func (repo *itemRepository) AddItem(item domain.Item) *domain.Item {
+func (repo *itemRepository) AddItem(item entity.Item) *entity.Item {
 	countId++
 	item.Id = countId
 
@@ -29,7 +29,7 @@ func (repo *itemRepository) AddItem(item domain.Item) *domain.Item {
 	return &item
 }
 
-func (repo *itemRepository) UpdateItem(item domain.Item, id int) *domain.Item {
+func (repo *itemRepository) UpdateItem(item entity.Item, id int) *entity.Item {
 	for k, v := range repo.db {
 		if v.Id == id {
 
@@ -48,7 +48,7 @@ func (repo *itemRepository) UpdateItem(item domain.Item, id int) *domain.Item {
 	return nil
 }
 
-func (repo *itemRepository) GetItem(id int) *domain.Item {
+func (repo *itemRepository) GetItem(id int) *entity.Item {
 
 	for _, v := range repo.db {
 		if v.Id == id {
@@ -59,7 +59,7 @@ func (repo *itemRepository) GetItem(id int) *domain.Item {
 
 }
 
-func (repo *itemRepository) DeleteItem(id int) *domain.Item {
+func (repo *itemRepository) DeleteItem(id int) *entity.Item {
 	for k, v := range repo.db {
 		if v.Id == id {
 			repo.db = append(repo.db[:k], repo.db[k+1:]...)
@@ -69,7 +69,7 @@ func (repo *itemRepository) DeleteItem(id int) *domain.Item {
 	return nil
 }
 
-func (repo *itemRepository) GetItems(status string, limit int) []domain.Item {
+func (repo *itemRepository) GetItems(status string, limit int) []entity.Item {
 
 	if limit <= 0 {
 		limit = 10
@@ -83,7 +83,7 @@ func (repo *itemRepository) GetItems(status string, limit int) []domain.Item {
 		return repo.db[i].UpdatedAt.After(repo.db[j].UpdatedAt)
 	})
 
-	var itemsToshow []domain.Item
+	var itemsToshow []entity.Item
 
 	if len(status) != 0 {
 		for k, v := range repo.db {
@@ -101,7 +101,7 @@ func (repo *itemRepository) GetItems(status string, limit int) []domain.Item {
 	return itemsToshow
 }
 
-func (repo *itemRepository) GetDB() []domain.Item {
+func (repo *itemRepository) GetDB() []entity.Item {
 	return repo.db
 }
 
