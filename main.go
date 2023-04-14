@@ -15,7 +15,7 @@ const port = ":9001"
 
 // Articulos   (las claves del json se obtienen en minusculas como "buena practicas")
 type Item struct {
-	ID          int       `json:"id"` //El id no se debe mandar aca si no automaticamente
+	ID          int       `json:"id"`
 	Code        string    `json:"code"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
