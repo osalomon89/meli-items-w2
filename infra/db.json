@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "id": 5,
+      "code": "SAM27324354",
+      "title": "Tablet Samsung Galaxy Tab A17",
+      "description": "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
+      "price": 400000,
+      "stock": 150,
+      "status": "",
+      "created_at": "2023-04-14T08:44:39.719725-04:00",
+      "updated_at": "2023-04-14T08:44:39.719726-04:00"
+    },
+    {
+      "id": 5,
+      "code": "SAM27324354",
+      "title": "Tablet Samsung Galaxy Tab A17",
+      "description": "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
+      "price": 400000,
+      "stock": 150,
+      "status": "",
+      "created_at": "2023-04-14T08:44:40.508726-04:00",
+      "updated_at": "2023-04-14T08:44:40.508727-04:00"
+    },
+    {
+      "id": 5,
+      "code": "SAM27324354",
+      "title": "Tablet Samsung Galaxy Tab A17",
+      "description": "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
+      "price": 400000,
+      "stock": 150,
+      "status": "",
+      "created_at": "2023-04-14T08:44:40.90431-04:00",
+      "updated_at": "2023-04-14T08:44:40.90431-04:00"
+    },
+    {
+      "id": 5,
+      "code": "SAM27324354",
+      "title": "Tablet Samsung Galaxy Tab A17",
+      "description": "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
+      "price": 400000,
+      "stock": 150,
+      "status": "",
+      "created_at": "2023-04-14T08:44:41.379007-04:00",
+      "updated_at": "2023-04-14T08:44:41.379008-04:00"
+    },
+    {
+      "id": 5,
+      "code": "SAM27324354",
+      "title": "Tablet Samsung Galaxy Tab A17",
+      "description": "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
+      "price": 400000,
+      "stock": 150,
+      "status": "",
+      "created_at": "2023-04-14T08:44:43.47277-04:00",
+      "updated_at": "2023-04-14T08:44:43.47277-04:00"
+    }
+  ]
+}
