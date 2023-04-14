@@ -46,6 +46,7 @@ func (ctrl *ItemController) GetItem(c *gin.Context) {
 			Error: true,
 			Data:  "Item not found",
 		})
+		return
 	} 
 	
 	c.JSON(http.StatusNotFound, responseInfo{
@@ -69,32 +70,12 @@ func (ctrl *ItemController) DeleteItem(c *gin.Context) {
 
 	item := ctrl.itemUsecase.DeleteItemByID(id)
 
-	/* Logica de negocio
-	var db_copy []dom.Item
-	var encontrado bool
-
-	for _,value := range db {
-		if value.ID != id {
-			db_copy = append(db_copy, value)
-		} else {
-			encontrado = true
-		}
-	}
-
-	if encontrado {
-		db = db_copy
-		c.JSON(http.StatusOK, responseInfo{
-			Error: false,
-			Data:  db,
-		})
-		return
-	} 
-	*/
 	if !item {
 		c.JSON(http.StatusNotFound, responseInfo{
 			Error: true,
 			Data:  "Item not found",
 		})
+		return
 	}
 
 	c.JSON(http.StatusNotFound, responseInfo{
@@ -122,8 +103,9 @@ func (ctrl *ItemController) AddItem(c *gin.Context) {
 	if my_err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Errorf("HUBO UN ERROR: %s",my_err.Error()),
+			Data:  fmt.Errorf("HUBO UN ERROR: %s",my_err.Error()), // No me está imprimiendo el error
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, responseInfo{
@@ -164,10 +146,39 @@ func (ctrl *ItemController) UpdateItem(c *gin.Context) {
 			Error: true,
 			Data:  fmt.Errorf("HUBO UN ERROR: %s",my_err.Error()),
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, responseInfo{
 		Error: false,
 		Data:  &item1,
+	})
+}
+
+func (ctrl *ItemController) GetItems(c *gin.Context){
+	status := c.Query("status")
+	limitParam := c.DefaultQuery("limit", "10")
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+		})
+		return
+	}
+
+	db,err1 := ctrl.itemUsecase.GetItemsByStatusAndLimit(status,limit)
+
+	if err1 != nil {
+		c.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  fmt.Errorf("HUBO UN ERROR: %s",err1.Error()),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"totalPages": len(db),
+		"data":  db,
 	})
 }

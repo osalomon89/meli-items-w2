@@ -23,7 +23,7 @@ func main() {
 	r.PUT("v1/items/:id", itemController.UpdateItem)
 	r.GET("v1/items/:id", itemController.GetItem)
 	r.DELETE("v1/items/:id", itemController.DeleteItem) 
-	//r.GET("v1/items", getItems) 
+	r.GET("v1/items", itemController.GetItems) 
 
 	r.Run(port)
 
@@ -364,5 +364,4 @@ func armarDB(db_copy []dom.Item, limit int) []dom.Item{
 		limit = len(db_copy)
 	}
 	return db_copy[0:limit]
-}
-*/
+}*/

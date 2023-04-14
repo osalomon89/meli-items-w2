@@ -20,16 +20,9 @@ type ItemRepository interface {
 	GetItem(id int) *Item
 	DeleteItem(id int) bool
 	GetDB() []Item
-	CodeRepetido(item Item) bool
+	CodeRepetido(id int, item Item) bool
 	ObtenerSiguienteID() int
 	SaveItem(item Item)
 	ModifyItem(id int,item Item)
+	GetItemsByStatus(status string) []Item
 }
-
-/*
-type BookRepository interface {
-	GetBooks() []Book
-	GetBook(id int) *Book
-	AddBook(book Book) *Book
-}
-*/

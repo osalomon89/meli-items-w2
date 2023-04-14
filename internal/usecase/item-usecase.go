@@ -3,6 +3,7 @@ package usecase
 import (
 	"fmt"
 	"time"
+	"sort"
 
 	dom "github.com/osalomon89/meli-items-w2/internal/domain"
 )
@@ -14,6 +15,7 @@ type ItemUsecase interface {
 	AddItemByItem(item *dom.Item) (*dom.Item,error)
 	setStatus(item *dom.Item)
 	UpdateItemByItem(id int,item *dom.Item) (*dom.Item,error)
+	GetItemsByStatusAndLimit(status string, limit int) ([]dom.Item,error)
 }
 
 type itemUsecase struct {
@@ -42,7 +44,8 @@ func (u *itemUsecase) AddItemByItem(item *dom.Item) (*dom.Item,error) {
 	if item == nil {
 		return	nil,fmt.Errorf("invalid item")
 	} 
-	if u.repo.CodeRepetido(*item) {
+
+	if u.repo.CodeRepetido(0,*item) {
 		return	nil,fmt.Errorf("invalid code")
 	}
 
@@ -60,13 +63,14 @@ func (u *itemUsecase) UpdateItemByItem(id int, item *dom.Item) (*dom.Item,error)
 	if item == nil {
 		return	nil,fmt.Errorf("invalid item")
 	} 
-	if u.repo.CodeRepetido(*item) {
+	if u.repo.CodeRepetido(id,*item) {
 		return	nil,fmt.Errorf("invalid code")
 	}
 
 	dt := time.Now()
 	item.UpdatedAt = dt
 	u.setStatus(item)
+	item.ID = id
 
 	u.repo.ModifyItem(id,*item)
 
@@ -79,4 +83,26 @@ func (u *itemUsecase) setStatus(item *dom.Item) {
 	} else {
 		item.Status = "ACTIVE"
 	}
+}
+
+func (u *itemUsecase) GetItemsByStatusAndLimit(status string, limit int) ([]dom.Item,error){
+	var db []dom.Item
+
+	if status == "ACTIVE" || status == "INACTIVE" {
+		db = u.repo.GetItemsByStatus(status)
+	} else if status == "" {
+		db = u.repo.GetDB()
+	} else {
+		return nil,fmt.Errorf("invalid url")
+	}
+
+	sort.Slice(db, func(i, j int) bool {
+		return db[i].UpdatedAt.After(db[j].UpdatedAt)
+	})
+
+	if limit > len(db){
+		limit = len(db)
+	}
+
+	return db[0:limit],nil
 }

@@ -44,12 +44,18 @@ func (r *itemRepository) DeleteItem(id int) bool {
 	return encontrado
 }
 
-func (r *itemRepository) CodeRepetido(item dom.Item) bool {
+func (r *itemRepository) CodeRepetido(id int, item dom.Item) bool {
 	var repetido bool
 
 	for _, val := range r.db {
-		if val.Code == item.Code {
-			repetido = true
+		if id == 0 {
+			if val.Code == item.Code {
+				repetido = true
+			}
+		} else {
+			if val.Code == item.Code && id != val.ID {
+				repetido = true
+			}
 		}
 	}
 	return repetido
@@ -77,4 +83,14 @@ func (r *itemRepository) ModifyItem(id int,item dom.Item) {
 			return
 		}
 	}
+}
+
+func (r *itemRepository) GetItemsByStatus(status string) []dom.Item {
+	var db_copy []dom.Item
+	for _,value := range r.db {
+		if value.Status == status {
+			db_copy = append(db_copy, value)
+		}
+	}
+	return db_copy
 }
