@@ -154,25 +154,20 @@ func (ctrl *ItemController) DeleteItem(c *gin.Context) {
 	})
 }
 
-type Query struct {
-	Status string `form:"status"`
-	Limit  int    `form:"limit"`
-}
-
 func (ctrl *ItemController) GetItems(c *gin.Context) {
-	var q Query
 
-	err := c.ShouldBind(&q)
+	status := c.Query("status")
+	lim := c.DefaultQuery("limit", "10")
+
+	limit, err := strconv.Atoi(lim)
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid query: %s", err.Error()),
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
 		})
 		return
 	}
-
-	status := q.Status
-	limit := q.Limit
 
 	result := ctrl.itemUsecase.GetAllItems(status, limit)
 

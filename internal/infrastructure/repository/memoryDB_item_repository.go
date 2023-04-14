@@ -71,11 +71,7 @@ func (repo *itemRepository) DeleteItem(id int) *entity.Item {
 
 func (repo *itemRepository) GetItems(status string, limit int) []entity.Item {
 
-	if limit <= 0 {
-		limit = 10
-	} else if limit > 20 {
-		limit = 20
-	} else if limit > len(repo.db) {
+	if limit > 20 || limit > len(repo.db) {
 		limit = len(repo.db)
 	}
 
