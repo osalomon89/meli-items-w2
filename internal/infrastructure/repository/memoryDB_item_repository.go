@@ -30,18 +30,18 @@ func (repo *itemRepository) AddItem(item domain.Item) *domain.Item {
 }
 
 func (repo *itemRepository) UpdateItem(item domain.Item, id int) *domain.Item {
-	for _, v := range repo.db {
+	for k, v := range repo.db {
 		if v.Id == id {
 
-			v.Code = item.Code
-			v.Title = item.Title
-			v.Description = item.Description
-			v.Price = item.Price
-			v.Stock = item.Stock
-			v.Status = validateStatus(item.Stock)
-			v.UpdatedAt = time.Now()
+			repo.db[k].Code = item.Code
+			repo.db[k].Title = item.Title
+			repo.db[k].Description = item.Description
+			repo.db[k].Price = item.Price
+			repo.db[k].Stock = item.Stock
+			repo.db[k].Status = validateStatus(item.Stock)
+			repo.db[k].UpdatedAt = time.Now()
 
-			return &item
+			return &repo.db[k]
 		}
 	}
 

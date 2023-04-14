@@ -33,7 +33,7 @@ func (uc *itemUsecase) AddItem(item domain.Item) (*domain.Item, error) {
 }
 
 func (uc *itemUsecase) UpdateItemById(item domain.Item, id int) (*domain.Item, error) {
-	if err := uc.validateCodeUpdate(item); err != nil {
+	if err := uc.validateCodeUpdate(item, id); err != nil {
 		return nil, err
 	}
 	return uc.repo.UpdateItem(item, id), nil
@@ -62,10 +62,10 @@ func (uc *itemUsecase) validateCode(code string) error {
 	return nil
 }
 
-func (uc *itemUsecase) validateCodeUpdate(item domain.Item) error {
+func (uc *itemUsecase) validateCodeUpdate(item domain.Item, id int) error {
 
 	for _, v := range uc.repo.GetDB() {
-		if v.Code == item.Code && v.Id != item.Id {
+		if v.Code == item.Code && v.Id != id {
 			return errors.New(fmt.Sprintf("The code '%s' already exists", item.Code))
 		}
 	}
