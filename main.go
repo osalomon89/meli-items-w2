@@ -1,15 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"net/http"
-	"strconv"
-	"time"
-
-	"github.com/gin-gonic/gin"
-)
-
 /*
 	FALTA
 	El campo code debe ser único.
@@ -28,9 +18,10 @@ import (
 const port string = "localhost:8888"
 
 // Creo BD local
-var itemsDB []Item
+//var itemsDB []dom.Item
 
 // Item Creamos la estructura Item y las etiquetas del JSON
+/*
 type Item struct {
 	Id          int       `json:"id"`
 	Code        string    `json:"code"`
@@ -42,85 +33,90 @@ type Item struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+*/
 
 func main() {
-	// Instancio 3 items para agregar a la BD
-	var items = []Item{
-		{
-			Id:          1,
-			Code:        "SAM27324354",
-			Title:       "Tablet Samsung Galaxy Tab S7",
-			Description: "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-			Price:       550000,
-			Stock:       3,
-			Status:      "ACTIVE",
-			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-			UpdatedAt:   time.Time{},
-		},
+	/*
+		serviceController := cntrl.NewController()
 
-		{
-			Id:          2,
-			Code:        "SAM27324355",
-			Title:       "Tablet Samsung Galaxy Tab S8",
-			Description: "Galaxy Tab S8 with S Pen SM-t733 12.4 pulgadas y 8GB de memoria RAM",
-			Price:       950000,
-			Stock:       2,
-			Status:      "ACTIVE",
-			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-			UpdatedAt:   time.Time{},
-		},
+		// Instancio 3 items para agregar a la BD
+		var items = []dom.Item{
+			{
+				Id:          1,
+				Code:        "SAM27324354",
+				Title:       "Tablet Samsung Galaxy Tab S7",
+				Description: "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
+				Price:       550000,
+				Stock:       3,
+				Status:      "ACTIVE",
+				CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+				UpdatedAt:   time.Time{},
+			},
 
-		{
-			Id:          3,
-			Code:        "SAM27324356",
-			Title:       "Smartphone Samsung J2",
-			Description: "Smarthphone J2 6 pulgadas y 1GB de memoria RAM",
-			Price:       300000,
-			Stock:       42,
-			Status:      "ACTIVE",
-			CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-			UpdatedAt:   time.Time{},
-		},
-	}
+			{
+				Id:          2,
+				Code:        "SAM27324355",
+				Title:       "Tablet Samsung Galaxy Tab S8",
+				Description: "Galaxy Tab S8 with S Pen SM-t733 12.4 pulgadas y 8GB de memoria RAM",
+				Price:       950000,
+				Stock:       2,
+				Status:      "ACTIVE",
+				CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+				UpdatedAt:   time.Time{},
+			},
 
-	// Agrego los items a la DB
-	saveItem(items)
+			{
+				Id:          3,
+				Code:        "SAM27324356",
+				Title:       "Smartphone Samsung J2",
+				Description: "Smarthphone J2 6 pulgadas y 1GB de memoria RAM",
+				Price:       300000,
+				Stock:       42,
+				Status:      "ACTIVE",
+				CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+				UpdatedAt:   time.Time{},
+			},
+		}
 
-	// Router default de gin y logueo
-	router := gin.Default()
+		// Agrego los items a la DB
+		serviceController.SaveItem(items)
+		// ----->
+		// Router default de gin y logueo
+		router := gin.Default()
 
-	// ******** ENDPOINTS *******
+		// ******** ENDPOINTS *******
 
-	// Get
-	//router.GET("v1/items", listItems)
-	router.GET("v1/items", getAllFiltered)
-	router.GET("v1/items/:id", getItemByID)
+		// Get
+		//router.GET("v1/items", listItems)
+		router.GET("v1/items", serviceController.GetAllFiltered)
+		router.GET("v1/items/:id", serviceController.GetItemByID)
 
-	// Post
-	router.POST("v1/items", addItem)
+		// Post
+		router.POST("v1/items", serviceController.AddItem)
 
-	// Put
-	router.PUT("v1/items/:id", updateItem)
+		// Put
+		router.PUT("v1/items/:id", serviceController.UpdateItem)
 
-	// Delete
-	router.DELETE("v1/items/:id", deleteItem)
+		// Delete
+		router.DELETE("v1/items/:id", serviceController.DeleteItem)
 
-	// Prendemos la maquinola
-	router.Run(port)
+		// Prendemos la maquinola
+		router.Run(port)
 
-	// Mensaje del puerto
-	log.Println("server listening to the port:", port)
-
+		// Mensaje del puerto
+		log.Println("server listening to the port:", port)
+	*/
 }
 
+/*
 // Guardar un item
-func saveItem(addItem []Item) {
+func saveItem(addItem []dom.Item) {
 	itemsDB = append(itemsDB, addItem...)
 }
 
 // Añadir item
 func addItem(c *gin.Context) {
-	var newSliceItem []Item
+	var newSliceItem []dom.Item
 
 	// Manejando el error
 	if err := c.BindJSON(&newSliceItem); err != nil {
@@ -151,7 +147,7 @@ func getItemByID(c *gin.Context) {
 	id := c.Param("id")
 
 	// Para guardar el item si se encuentra
-	var itemFound Item
+	var itemFound dom.Item
 
 	// Casteando el param que llega en string a int
 	idInt, err := strconv.Atoi(id)
@@ -170,7 +166,7 @@ func getItemByID(c *gin.Context) {
 
 	// Retornamos ok si encontramos el id, no es necesario igular a true en la condición ya que en Go porque el valor booleano es en sí una condición en el caso if found {...}
 	// Se puede evitar el uso de la variable bandera si directamente preguntamos por el valor por default de la struct Item
-	if itemFound != (Item{}) {
+	if itemFound != (dom.Item{}) {
 		c.JSON(http.StatusOK, itemFound)
 	} else {
 		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
@@ -179,11 +175,10 @@ func getItemByID(c *gin.Context) {
 }
 
 // obtener items con filtros
-
 func getAllFiltered(c *gin.Context) {
 	status := c.Query("status")
 
-	var dbFiltered []Item
+	var dbFiltered []dom.Item
 
 	if status != "ACTIVE" && status != "INACTIVE" && status != "ALL" {
 		c.Error(fmt.Errorf("status inválido"))
@@ -214,6 +209,7 @@ func getAllFiltered(c *gin.Context) {
 
 }
 
+
 // Listar todos los items
 func listItems(c *gin.Context) {
 	if len(itemsDB) == 0 {
@@ -224,10 +220,10 @@ func listItems(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, itemsDB)
 }
 
-// Modificar item no funca
+// Modificar item
 func updateItem(c *gin.Context) {
 	//var itemFound Item
-	var itemToUpdate Item
+	var itemToUpdate dom.Item
 	id := c.Param("id")
 
 	idInt, err := strconv.Atoi(id)
@@ -241,7 +237,7 @@ func updateItem(c *gin.Context) {
 		return
 	}
 
-	var itemToUpdatePtr *Item
+	var itemToUpdatePtr *dom.Item
 
 	for i := range itemsDB {
 		if itemsDB[i].Id == idInt {
@@ -273,6 +269,8 @@ func updateItem(c *gin.Context) {
 
 }
 
+
+
 // Eliminar item
 func deleteItem(c *gin.Context) {
 	id := c.Param("id")
@@ -293,3 +291,4 @@ func deleteItem(c *gin.Context) {
 
 	c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
 }
+*/
