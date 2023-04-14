@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http" //permite crear u obtener los status (errors) //?
-	"strconv"
-
-	//"strconv"  //Conviertir string
+	"strconv"  //Convertir string
 	"time"
 
 	"github.com/gin-gonic/gin" // permite enrutar (metodos get post entro otros)
