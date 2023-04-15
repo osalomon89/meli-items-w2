@@ -15,9 +15,13 @@ type itemRepository struct {
 	countId int
 }
 
+// NewItemRepository Constructor
+func NewItemRepository() dom.ItemRepository {
+	return &itemRepository{}
+}
+
 // AddItem Añadir item
-func (iRepo itemRepository) AddItem(item dom.Item) *dom.Item {
-	//TODO verificar datos de entrada y devolver nil, posiblemente encerrar todo en un if
+func (iRepo *itemRepository) AddItem(item dom.Item) *dom.Item {
 
 	// Id Incremental
 	iRepo.countId++
@@ -31,10 +35,15 @@ func (iRepo itemRepository) AddItem(item dom.Item) *dom.Item {
 	// Verificamos el código único
 	item.Code = codeCheck(item.Code)
 
-	// Guardo
-	iRepo.itemsDB = append(iRepo.itemsDB, item)
+	// valido que están gucci los datos
+	if validateItem(item) == nil {
+		// Guardo
+		iRepo.itemsDB = append(iRepo.itemsDB, item)
+		return &item
+	}
 
-	return &item
+	return nil
+
 }
 
 // GetItemById Obtener item por ID
@@ -48,7 +57,7 @@ func (iRepo *itemRepository) GetItemById(id int) *dom.Item {
 }
 
 // UpdateItem modificar item
-func (iRepo itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
+func (iRepo *itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
 	itemFound := iRepo.GetItemById(id)
 
 	if itemFound == nil {
@@ -63,7 +72,9 @@ func (iRepo itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
 	itemFound.Status = statusCheck(item.Stock)
 	itemFound.UpdatedAt = time.Now()
 
-	validateItem(item)
+	if validateItem(item) == nil {
+		return nil
+	}
 
 	for i, v := range iRepo.itemsDB {
 		if v.Id == itemFound.Id {
@@ -75,26 +86,38 @@ func (iRepo itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
 	return nil
 }
 
-func (iRepo itemRepository) DeleteItem(id int) *dom.Item {
+// DeleteItem borrar un item
+func (iRepo *itemRepository) DeleteItem(id int) *dom.Item {
+
+	itemFound := iRepo.GetItemById(id)
+
+	if itemFound == nil {
+		return nil
+	}
+
+	for i, v := range iRepo.itemsDB {
+		if v.Id == id {
+			iRepo.itemsDB = append(iRepo.itemsDB[:i], iRepo.itemsDB[i+1:]...)
+			return itemFound
+		}
+	}
+
+	return nil
+
+}
+
+func (iRepo *itemRepository) ListItem(status string, limit int) *[]dom.Item {
 	//TODO implement me
+
 	panic("implement me")
 }
 
-func (iRepo itemRepository) ListItem(status string, limit int) []dom.Item {
-	//TODO implement me
-	panic("implement me")
+// GetDB Obtener base
+func (iRepo *itemRepository) GetDB() *[]dom.Item {
+	return &iRepo.itemsDB
 }
 
-// Obtener base
-func (iRepo itemRepository) GetDB() []dom.Item {
-	return iRepo.itemsDB
-}
-
-func NewItemRepository() dom.ItemRepository {
-	return &itemRepository{}
-}
-
-// ******** FUNCIONES AUXILIARES ********
+// ---------> FUNCIONES VERIFICACIÓN <---------
 
 func statusCheck(stock int) string {
 	if stock > 0 {

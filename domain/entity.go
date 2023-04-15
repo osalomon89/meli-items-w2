@@ -19,6 +19,6 @@ type ItemRepository interface {
 	UpdateItem(item Item, id int) *Item
 	GetItemById(id int) *Item
 	DeleteItem(id int) *Item
-	ListItem(status string, limit int) []Item
-	GetDB() []Item
+	ListItem(status string, limit int) *[]Item
+	GetDB() *[]Item
 }
