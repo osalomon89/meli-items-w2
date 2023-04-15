@@ -3,9 +3,8 @@ package repository
 import (
 	"errors"
 	"math/rand"
+	dom "meli-items-w2/internal/domain"
 	"time"
-
-	dom "meli-items-w2/domain"
 )
 
 type itemRepository struct {

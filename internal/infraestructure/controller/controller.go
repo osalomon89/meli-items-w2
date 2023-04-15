@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	dom "meli-items-w2/domain"
+	dom "meli-items-w2/internal/domain"
 	"net/http"
 	"strconv"
 )
