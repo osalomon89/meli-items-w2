@@ -8,8 +8,6 @@ import (
 	dom "meli-items-w2/domain"
 )
 
-var repo itemRepository
-
 type itemRepository struct {
 	itemsDB []dom.Item
 	countId int
@@ -106,18 +104,32 @@ func (iRepo *itemRepository) DeleteItem(id int) *dom.Item {
 
 }
 
-func (iRepo *itemRepository) ListItem(status string, limit int) *[]dom.Item {
-	//TODO implement me
+// ListItem listar bd aún no funcionan los filtros
+func (iRepo *itemRepository) ListItem(status string) []dom.Item {
+	// TODO filtrado por fecha y limite, agregar param en la interfaz y en la func ", limit int"
 
-	panic("implement me")
+	var dbFiltered []dom.Item
+
+	for _, item := range iRepo.itemsDB {
+		if item.Status == status {
+			dbFiltered = append(dbFiltered, item)
+			return dbFiltered
+		}
+
+	}
+
+	return nil
+
 }
 
 // GetDB Obtener base
-func (iRepo *itemRepository) GetDB() *[]dom.Item {
-	return &iRepo.itemsDB
+func (iRepo *itemRepository) GetDB() []dom.Item {
+	return iRepo.itemsDB
 }
 
 // ---------> FUNCIONES VERIFICACIÓN <---------
+
+var repo itemRepository
 
 func statusCheck(stock int) string {
 	if stock > 0 {
