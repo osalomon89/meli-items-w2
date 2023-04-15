@@ -1,39 +1,7 @@
 package main
 
-/*
-	FALTA
-	El campo code debe ser único.
-	? Los campos code, title, description, price, stock, photos son obligatórios.
-
-	-----
-	limit: Es el tamaño solicitado de resultados en la página. Es un parámetro opcional,
-	su valor default es 10, y su valor máximo es 20.
-
-	La respuesta debe seguir la siguiente estructura de campos:
-	totalPages: El número total de items que contienen resultados para la búsqueda hecha.
-	data: 		Un array con los objetos conteniendo los items solicitados en el request.
-*/
-
 // Puerto de escucha declarado como const
 const port string = "localhost:8888"
-
-// Creo BD local
-//var itemsDB []dom.Item
-
-// Item Creamos la estructura Item y las etiquetas del JSON
-/*
-type Item struct {
-	Id          int       `json:"id"`
-	Code        string    `json:"code"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Price       int       `json:"price"`
-	Stock       int       `json:"stock"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-*/
 
 func main() {
 	/*

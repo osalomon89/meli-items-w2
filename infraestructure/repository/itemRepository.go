@@ -18,7 +18,11 @@ func NewItemRepository() dom.ItemRepository {
 	return &itemRepository{}
 }
 
-// AddItem Añadir item
+// GetDB Obtener base
+func (iRepo *itemRepository) GetDB() []dom.Item {
+	return iRepo.itemsDB
+}
+
 func (iRepo *itemRepository) AddItem(item dom.Item) *dom.Item {
 
 	// Id Incremental
@@ -44,7 +48,6 @@ func (iRepo *itemRepository) AddItem(item dom.Item) *dom.Item {
 
 }
 
-// GetItemById Obtener item por ID
 func (iRepo *itemRepository) GetItemById(id int) *dom.Item {
 	for _, item := range iRepo.itemsDB {
 		if item.Id == id {
@@ -54,7 +57,6 @@ func (iRepo *itemRepository) GetItemById(id int) *dom.Item {
 	return nil
 }
 
-// UpdateItem modificar item
 func (iRepo *itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
 	itemFound := iRepo.GetItemById(id)
 
@@ -84,7 +86,6 @@ func (iRepo *itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
 	return nil
 }
 
-// DeleteItem borrar un item
 func (iRepo *itemRepository) DeleteItem(id int) *dom.Item {
 
 	itemFound := iRepo.GetItemById(id)
@@ -104,6 +105,8 @@ func (iRepo *itemRepository) DeleteItem(id int) *dom.Item {
 
 }
 
+// TODO limit: Es el tamaño solicitado de resultados en la página. Es un parámetro opcional, su valor default es 10, y su valor máximo es 20.
+
 // ListItem listar bd aún no funcionan los filtros
 func (iRepo *itemRepository) ListItem(status string) []dom.Item {
 	// TODO filtrado por fecha y limite, agregar param en la interfaz y en la func ", limit int"
@@ -120,11 +123,6 @@ func (iRepo *itemRepository) ListItem(status string) []dom.Item {
 
 	return nil
 
-}
-
-// GetDB Obtener base
-func (iRepo *itemRepository) GetDB() []dom.Item {
-	return iRepo.itemsDB
 }
 
 // ---------> FUNCIONES VERIFICACIÓN <---------

@@ -1,20 +1,41 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	dom "meli-items-w2/domain"
 	"net/http"
 	"strconv"
-
-	dom "meli-items-w2/domain"
 )
 
 type controller struct {
+}
+
+type response struct {
+	Error bool        `json:"error"`
+	Data  interface{} `json:"data"`
 }
 
 func NewController() *controller {
 	return &controller{}
 }
 
+// AddItem Añadir item
+func (ctrl *controller) AddItem(c *gin.Context) {
+	var newSliceItem []dom.Item
+
+	// Manejando el error
+	if err := c.BindJSON(&newSliceItem); err != nil {
+		c.JSON(http.StatusNotFound, err)
+		return
+	}
+
+	saveItem(newSliceItem)
+	c.IndentedJSON(http.StatusCreated, newSliceItem)
+
+}
+
+// UpdateItem modificar item
 func (ctrl *controller) UpdateItem(c *gin.Context) {
 	//var itemFound Item
 	var itemToUpdate dom.Item
@@ -66,57 +87,7 @@ func (ctrl *controller) UpdateItem(c *gin.Context) {
 
 }
 
-// Eliminar item
-func (ctrl *controller) DeleteItem(c *gin.Context) {
-	id := c.Param("id")
-
-	_, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err)
-		return
-	}
-
-	/*
-		for i, item := range itemsDB {
-			if item.Id == idInt {
-				itemsDB = append(itemsDB[:i], itemsDB[i+1:]...)
-				c.JSON(http.StatusOK, "item eliminado con éxito id: "+id)
-				return
-			}
-		}
-	*/
-	c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
-}
-
-/*
-// Añadir item
-func (ctrl *controller) AddItem(c *gin.Context) {
-	var newSliceItem []dom.Item
-
-	// Manejando el error
-	if err := c.BindJSON(&newSliceItem); err != nil {
-		c.JSON(http.StatusNotFound, err)
-		return
-	}
-
-	for i := range newSliceItem {
-		newSliceItem[i].Id = len(itemsDB) + i + 1
-		newSliceItem[i].CreatedAt = time.Now()
-		newSliceItem[i].UpdatedAt = time.Time{}
-		if newSliceItem[i].Stock > 0 {
-			newSliceItem[i].Status = "ACTIVE"
-		} else {
-			newSliceItem[i].Status = "INACTIVE"
-		}
-
-	}
-
-	saveItem(newSliceItem)
-	c.IndentedJSON(http.StatusCreated, newSliceItem)
-
-}
-
-// Obtener Item por id
+// GetItemByID Obtener Item por id
 func (ctrl *controller) GetItemByID(c *gin.Context) {
 	// Obtener el ID del parámetro de la URL
 	id := c.Param("id")
@@ -149,8 +120,25 @@ func (ctrl *controller) GetItemByID(c *gin.Context) {
 
 }
 
-// obtener items con filtros
-func (ctrl *controller) GetAllFiltered(c *gin.Context) {
+// DeleteItem Eliminar item
+func (ctrl *controller) DeleteItem(c *gin.Context) {
+	id := c.Param("id")
+
+	_, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
+		return
+	}
+
+	c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
+}
+
+// TODO	//	La respuesta debe seguir la siguiente estructura de campos:
+// TODO	//	totalPages: 	El número total de items que contienen resultados para la búsqueda hecha.
+// TODO	//	data: 			Un array con los objetos conteniendo los items solicitados en el request.
+
+// ListItem obtener items con filtros
+func (ctrl *controller) ListItem(c *gin.Context) {
 	status := c.Query("status")
 
 	var dbFiltered []dom.Item
@@ -183,4 +171,3 @@ func (ctrl *controller) GetAllFiltered(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, dbFiltered)
 
 }
-*/
