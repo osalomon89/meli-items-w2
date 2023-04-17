@@ -31,7 +31,7 @@ type responseInfo struct {
 func (ctrl *ItemController) AddItem(c *gin.Context) {
 	body := c.Request.Body
 
-	var item []dom.Item
+	var item dom.Item
 
 	err := json.NewDecoder(body).Decode(&item)
 	if err != nil {

@@ -1,238 +1,86 @@
 package main
 
+import (
+	"github.com/gin-gonic/gin"
+	"log"
+	"time"
+
+	dom "meli-items-w2/internal/domain"
+	"meli-items-w2/internal/infraestructure/controller"
+	"meli-items-w2/internal/infraestructure/repository"
+	"meli-items-w2/internal/usecase"
+)
+
 // Puerto de escucha declarado como const
 const port string = "localhost:8888"
 
 func main() {
-	/*
-		serviceController := cntrl.NewController()
 
-		// Instancio 3 items para agregar a la BD
-		var items = []dom.Item{
-			{
-				Id:          1,
-				Code:        "SAM27324354",
-				Title:       "Tablet Samsung Galaxy Tab S7",
-				Description: "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
-				Price:       550000,
-				Stock:       3,
-				Status:      "ACTIVE",
-				CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-				UpdatedAt:   time.Time{},
-			},
+	// Router default de gin y logueo
+	router := gin.Default()
 
-			{
-				Id:          2,
-				Code:        "SAM27324355",
-				Title:       "Tablet Samsung Galaxy Tab S8",
-				Description: "Galaxy Tab S8 with S Pen SM-t733 12.4 pulgadas y 8GB de memoria RAM",
-				Price:       950000,
-				Stock:       2,
-				Status:      "ACTIVE",
-				CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-				UpdatedAt:   time.Time{},
-			},
+	serviceRepository := repository.NewItemRepository()
+	serviceUsecase := usecase.NewItemUsecase(serviceRepository)
+	serviceController := controller.NewItemController(serviceUsecase)
 
-			{
-				Id:          3,
-				Code:        "SAM27324356",
-				Title:       "Smartphone Samsung J2",
-				Description: "Smarthphone J2 6 pulgadas y 1GB de memoria RAM",
-				Price:       300000,
-				Stock:       42,
-				Status:      "ACTIVE",
-				CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
-				UpdatedAt:   time.Time{},
-			},
-		}
+	// Instancio 3 items para agregar a la BD
+	var item1 = dom.Item{
+		Id:          1,
+		Code:        "SAM27324354",
+		Title:       "Tablet Samsung Galaxy Tab S7",
+		Description: "Galaxy Tab S7 with S Pen SM-t733 12.4 pulgadas y 4GB de memoria RAM",
+		Price:       550000,
+		Stock:       3,
+		Status:      "ACTIVE",
+		CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+		UpdatedAt:   time.Time{},
+	}
+	var item2 = dom.Item{
+		Id:          2,
+		Code:        "SAM27324355",
+		Title:       "Tablet Samsung Galaxy Tab S8",
+		Description: "Galaxy Tab S8 with S Pen SM-t733 12.4 pulgadas y 8GB de memoria RAM",
+		Price:       950000,
+		Stock:       2,
+		Status:      "ACTIVE",
+		CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+		UpdatedAt:   time.Time{},
+	}
+	var item3 = dom.Item{
+		Id:          3,
+		Code:        "SAM27324356",
+		Title:       "Smartphone Samsung J2",
+		Description: "Smarthphone J2 6 pulgadas y 1GB de memoria RAM",
+		Price:       300000,
+		Stock:       42,
+		Status:      "ACTIVE",
+		CreatedAt:   time.Date(2023, 4, 11, 17, 0, 0, 0, time.FixedZone("-05:00", -5*60*60)),
+		UpdatedAt:   time.Time{},
+	}
 
-		// Agrego los items a la DB
-		serviceController.SaveItem(items)
-		// ----->
-		// Router default de gin y logueo
-		router := gin.Default()
+	// Agrego los items a la DB
+	serviceRepository.AddItem(item1)
+	serviceRepository.AddItem(item2)
+	serviceRepository.AddItem(item3)
 
-		// ******** ENDPOINTS *******
+	// ******** ENDPOINTS *******
 
-		// Get
-		//router.GET("v1/items", listItems)
-		router.GET("v1/items", serviceController.GetAllFiltered)
-		router.GET("v1/items/:id", serviceController.GetItemByID)
+	// Get
+	router.GET("v1/items", serviceController.ListItem)
+	router.GET("v1/items/:id", serviceController.GetItemByID)
 
-		// Post
-		router.POST("v1/items", serviceController.AddItem)
+	// Post
+	router.POST("v1/items", serviceController.AddItem)
 
-		// Put
-		router.PUT("v1/items/:id", serviceController.UpdateItem)
+	// Put
+	router.PUT("v1/items/:id", serviceController.UpdateItem)
 
-		// Delete
-		router.DELETE("v1/items/:id", serviceController.DeleteItem)
+	// Delete
+	router.DELETE("v1/items/:id", serviceController.DeleteItem)
 
-		// Prendemos la maquinola
-		router.Run(port)
+	// Prendemos la maquinola
+	router.Run(port)
 
-		// Mensaje del puerto
-		log.Println("server listening to the port:", port)
-	*/
+	// Mensaje del puerto
+	log.Println("server listening to the port:", port)
 }
-
-/*
-// Guardar un item
-func saveItem(addItem []dom.Item) {
-	itemsDB = append(itemsDB, addItem...)
-}
-
-// Añadir item
-func addItem(c *gin.Context) {
-	var newSliceItem []dom.Item
-
-	// Manejando el error
-	if err := c.BindJSON(&newSliceItem); err != nil {
-		c.JSON(http.StatusNotFound, err)
-		return
-	}
-
-	for i := range newSliceItem {
-		newSliceItem[i].Id = len(itemsDB) + i + 1
-		newSliceItem[i].CreatedAt = time.Now()
-		newSliceItem[i].UpdatedAt = time.Time{}
-		if newSliceItem[i].Stock > 0 {
-			newSliceItem[i].Status = "ACTIVE"
-		} else {
-			newSliceItem[i].Status = "INACTIVE"
-		}
-
-	}
-
-	saveItem(newSliceItem)
-	c.IndentedJSON(http.StatusCreated, newSliceItem)
-
-}
-
-// Obtener Item por id
-func getItemByID(c *gin.Context) {
-	// Obtener el ID del parámetro de la URL
-	id := c.Param("id")
-
-	// Casteando el param que llega en string a int
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err)
-		return
-	}
-
-	// Retornamos ok si encontramos el id, no es necesario igular a true en la condición ya que en Go porque el valor booleano es en sí una condición en el caso if found {...}
-	// Se puede evitar el uso de la variable bandera si directamente preguntamos por el valor por default de la struct Item
-	if itemFound != (dom.Item{}) {
-		c.JSON(http.StatusOK, itemFound)
-	} else {
-		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
-	}
-
-}
-
-// obtener items con filtros
-func getAllFiltered(c *gin.Context) {
-	status := c.Query("status")
-
-	var dbFiltered []dom.Item
-
-	if status != "ACTIVE" && status != "INACTIVE" && status != "ALL" {
-		c.Error(fmt.Errorf("status inválido"))
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	for _, item := range itemsDB {
-		if item.Status == status {
-			dbFiltered = append(dbFiltered, item)
-		}
-
-	}
-
-	if len(itemsDB) == 0 {
-		c.Error(fmt.Errorf("no hay items disponibles"))
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-
-	if len(dbFiltered) == 0 {
-		c.Error(fmt.Errorf("no hay items disponibles"))
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-
-	c.IndentedJSON(http.StatusOK, dbFiltered)
-
-}
-
-
-// Listar todos los items
-func listItems(c *gin.Context) {
-	if len(itemsDB) == 0 {
-		c.Error(fmt.Errorf("no hay items disponibles"))
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	c.IndentedJSON(http.StatusOK, itemsDB)
-}
-
-// Modificar item
-func updateItem(c *gin.Context) {
-	//var itemFound Item
-	var itemToUpdate dom.Item
-	id := c.Param("id")
-
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err)
-		return
-	}
-
-	if error := c.BindJSON(&itemToUpdate); error != nil {
-		c.JSON(http.StatusNotFound, error)
-		return
-	}
-
-	var itemToUpdatePtr *dom.Item
-
-	if itemToUpdatePtr == nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
-		return
-	}
-
-	itemToUpdatePtr.Code = itemToUpdate.Code
-	itemToUpdatePtr.Title = itemToUpdate.Title
-	itemToUpdatePtr.Description = itemToUpdate.Description
-	itemToUpdatePtr.Price = itemToUpdate.Price
-	itemToUpdatePtr.Stock = itemToUpdate.Stock
-	itemToUpdatePtr.Status = itemToUpdate.Status
-	itemToUpdatePtr.UpdatedAt = time.Now()
-
-	c.JSON(http.StatusOK, itemToUpdatePtr)
-
-}
-
-
-
-// Eliminar item
-func deleteItem(c *gin.Context) {
-	id := c.Param("id")
-
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err)
-		return
-	}
-
-	for i, item := range itemsDB {
-		if item.Id == idInt {
-			itemsDB = append(itemsDB[:i], itemsDB[i+1:]...)
-			c.JSON(http.StatusOK, "item eliminado con éxito id: "+id)
-			return
-		}
-	}
-
-	c.AbortWithStatusJSON(http.StatusNotFound, "no se encuentra el id solicitado")
-}
-*/
