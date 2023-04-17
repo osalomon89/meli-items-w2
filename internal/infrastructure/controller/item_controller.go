@@ -3,6 +3,7 @@ que utlizamos (estan afuera de nuestra app y nos comunicamos con ellas de alguna
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -45,52 +46,35 @@ func AddItems(gin *gin.Context) {
 		})
 		return
 
-		//(Note: optimizar el codigo) --> Nueva funcion?
 	}
-	if item.Code == "" {
+
+	//cambiar status segun el stock
+	if err := changeItemStatus(&item); err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  "Code is required",
+			Data:  err.Error(),
 		})
-		return
 	}
-	if item.Title == "" {
+
+	//Verificar que el codigo sea unico
+	if !verifyCode(item.Code) {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  "Title is required %s",
-		})
-		return
-	}
-	if item.Description == "" {
-		gin.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  "Description is required",
-		})
-		return
-	}
-	if item.Price == 0 || item.Price < 0 {
-		gin.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  "Price is required and need be greater that 0",
-		})
-		return
-	}
-	if item.Stock == 0 {
-		item.Status = "INACTIVE"
-	}
-	if item.Stock > 0 {
-		item.Status = "ACTIVE"
-	} else {
-		gin.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  "Stock must be greater than 0 and must be a number",
+			Data:  fmt.Sprintf("Item with code %s already exists", item.Code),
 		})
 		return
 	}
 
+	//Campos  requeridos
+	if err := requeriedFields(&item); err != nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  err.Error(),
+		})
+		return
+	}
 	item.CreatedAt = time.Now()
 	item.UpdatedAt = item.CreatedAt
-
 	newId := generateID(Db)
 	item.ID = newId
 	Db = append(Db, item)
@@ -146,6 +130,15 @@ func UpdateItems(gin *gin.Context) {
 		return
 	}
 
+	//cambiar status segun el stock
+	if err := changeItemStatus(item); err != nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  err.Error(),
+		})
+	}
+
+	// Actualizar campos
 	var updateItem dom.Item
 	err = gin.BindJSON(&updateItem)
 	if err != nil {
@@ -156,26 +149,7 @@ func UpdateItems(gin *gin.Context) {
 		return
 	}
 
-	//Reescribir en una funcion (updateFields)
-	if updateItem.Code != "" {
-		item.Code = updateItem.Code
-	}
-	if updateItem.Title != "" {
-		item.Title = updateItem.Title
-	}
-	if updateItem.Description != "" {
-		item.Description = updateItem.Description
-	}
-	if updateItem.Price != 0 {
-		item.Price = updateItem.Price
-	}
-	if updateItem.Stock != 0 {
-		item.Stock = updateItem.Stock
-	}
-	//Por si el stock cambia a 0, entonces se debe poner statos Inactivo
-	if updateItem.Stock == 0 {
-		item.Status = "INACTIVE"
-	}
+	updateFields(item, updateItem)
 	//hora de actualizacion
 	item.UpdatedAt = time.Now()
 
@@ -233,6 +207,46 @@ func generateID(items []dom.Item) int {
 	return maxId + 1
 }
 
+//Funcion para verificar que el code no este repetido
+
+// Funcion para cambiar el STATUS segun el STOCK
+
+func requeriedFields(item *dom.Item) error {
+	if item == nil {
+		return errors.New("item is nil")
+	}
+	if item.Code == "" {
+		return errors.New("code is required")
+	}
+	if item.Title == "" {
+		return errors.New("title is required")
+	}
+	if item.Description == "" {
+		return errors.New("description is required")
+	}
+	if item.Price == 0 || item.Price < 0 {
+		return errors.New("price is required and need be greater that 0")
+
+	}
+	if item.Stock < 0 {
+		return errors.New("stock need be greater that 0")
+	}
+	return nil
+}
+
+func changeItemStatus(item *dom.Item) error {
+	if item == nil {
+		return errors.New("item is nil")
+	}
+	if item.Stock == 0 {
+		item.Status = "INACTIVE"
+		return nil
+	}
+
+	item.Status = "ACTIVE"
+	return nil
+}
+
 // Buscar id en slice
 func findItemById(id int) *dom.Item {
 	for i := range Db {
@@ -241,4 +255,34 @@ func findItemById(id int) *dom.Item {
 		}
 	}
 	return nil
+}
+
+// codigo unico
+func verifyCode(code string) bool {
+
+	for i := range Db {
+		if Db[i].Code == code {
+			return false
+		}
+	}
+	return true
+}
+
+// Actualizar campos (items)  (Comparar original con la que entra (copia))
+func updateFields(item *dom.Item, updateItem dom.Item) {
+	if updateItem.Code != "" {
+		item.Code = updateItem.Code
+	}
+	if updateItem.Title != "" {
+		item.Title = updateItem.Title
+	}
+	if updateItem.Description != "" {
+		item.Description = updateItem.Description
+	}
+	if updateItem.Price != 0 {
+		item.Price = updateItem.Price
+	}
+	if updateItem.Stock != 0 {
+		item.Stock = updateItem.Stock
+	}
 }
