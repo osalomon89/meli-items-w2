@@ -10,12 +10,13 @@ type ItemUsecase interface {
 	
 	Index() []domain.Item
 	GetAllItems() []domain.Item
-	GetItemById(id int) *domain.Item
+	GetItemById(int) *domain.Item
 	GetListaInicial() []domain.Item
-	AddItem(item domain.Item)(*domain.Item, error)
-	UpdateItem(item domain.Item)(*domain.Item, error)
-	ActualizarUpdateAt(item *domain.Item)
-	UpdateItemNuevo(item domain.Item)
+	AddItem(domain.Item)(*domain.Item, error)
+	UpdateItem(domain.Item)(*domain.Item, error)
+	ActualizarUpdateAt(*domain.Item)
+	UpdateItemNuevo(domain.Item)
+	DeleteItem(int) (bool, error)
 }
 
 
@@ -24,17 +25,17 @@ type ItemRepository interface {
 	Index() []domain.Item
 	GetListaInicial() []domain.Item
 	GetAllItems() []domain.Item
-	GetItemById(id int)*domain.Item
+	GetItemById(int)*domain.Item
 
 	/*---------POSTS---------*/
-	AddItem(item domain.Item)*domain.Item
+	AddItem(domain.Item)*domain.Item
 
 	/*---------PUTS---------*/
 	//UpdateItem(id int)*domain.Item
-	UpdateItemNuevo(item domain.Item) error
+	UpdateItemNuevo(domain.Item) error
 
-	//auxiliares
-	//ActualizarUpdateAt(item domain.Item)
+	//--------DELETE----------*/
+	DeleteItem(int) (bool)
 	
 }
 

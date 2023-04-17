@@ -153,3 +153,37 @@ func (ctrl *ItemController) UpdateItem(ctx *gin.Context) {
 		"data":  itemActualizado,
 	})
 }
+
+
+//----------------DELETE--------------
+
+func (ctrl *ItemController) DeleteItem (ctx *gin.Context) {
+	idParam := ctx.Param("id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	itemEliminado, err := ctrl.itemUsecase.DeleteItem(id)
+	
+	
+	if !itemEliminado {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": true,
+				"data":  err.Error(),
+			})
+			return
+		}
+	
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  ctrl.itemUsecase.GetAllItems(),
+	})
+
+}

@@ -85,7 +85,7 @@ func main() {
 	r.PUT("v1/items/:id", ctrl.UpdateItem)
 
 	/*------DELETE-------*/
-	//r.DELETE("v1/items/:id", DeleteItem)
+	r.DELETE("v1/items/:id", ctrl.DeleteItem)
 
 
 	/*------MSJ ESCUCHANDO PUERTO -------*/

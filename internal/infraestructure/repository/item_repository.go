@@ -53,6 +53,13 @@ func (r *itemRepository) UpdateItem(id int) *domain.Item{
 	return nil
 }
 
+
+
+
+
+
+
+// funciones auxiliares 
 //solo creacion podrian guardarse como save item
 func (r *itemRepository) ActualizarCreateAt(item *domain.Item){
 	item.CreatedAt = time.Now()
@@ -131,4 +138,16 @@ func (r *itemRepository) InformacionCompleta(item *domain.Item) error{
 		return fmt.Errorf("el campo no debe estar vacio")
 	}
 	return nil
+}
+
+
+//-------detele-----
+func (r *itemRepository) DeleteItem(id int) bool {
+	for i, v := range r.articulos {
+		if v.ID == id {
+			r.articulos = append(r.articulos[:i], r.articulos[i+1:]...)
+			return true
+		}
+	}
+	return false
 }

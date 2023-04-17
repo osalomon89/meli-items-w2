@@ -86,3 +86,12 @@ func (u itemUsecase) ActualizarUpdateAt(item *domain.Item){
 func (u itemUsecase)UpdateItemNuevo(item domain.Item){
 
 }
+
+func (u itemUsecase)DeleteItem(id int) (bool, error){
+	result := u.repo.DeleteItem(id)
+
+	if result {
+		return result, nil
+	}
+	return result, fmt.Errorf( "no fue encontrado")
+}
