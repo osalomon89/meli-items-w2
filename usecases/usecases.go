@@ -18,7 +18,7 @@ func NewUseCases() *usecases{
 func (u *usecases) UpdateItem(item dom.Item)error{
 	var db []dom.Item
 
-	for i, _ := range db{
+	for i := range db{
 		if db[i].ID == item.ID {
 			db[i].Title = item.Title
 			db[i].Description = item.Description

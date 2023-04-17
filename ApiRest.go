@@ -225,8 +225,9 @@ func main() {
 	}
 
 func deleteItem(c *gin.Context){
+	
 	idParam := c.Param("id")
-	_, err := strconv.Atoi(idParam)
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": true,
@@ -234,8 +235,16 @@ func deleteItem(c *gin.Context){
 		})
 		return
 	}
+	for i, v := range db{
+		if v.ID == id {
+			db = append(db[:i], db[i+1:]...)
+		}
+	}
 
-
+	c.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  db,
+	})
 
 
 
