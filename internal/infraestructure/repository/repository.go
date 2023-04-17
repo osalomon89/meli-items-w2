@@ -104,9 +104,10 @@ func (iRepo *itemRepository) DeleteItem(id int) *dom.Item {
 
 }
 
-// TODO limit: Es el tamaño solicitado de resultados en la página. Es un parámetro opcional, su valor default es 10, y su valor máximo es 20.
+// TODO // limit: Es el tamaño solicitado de resultados en la página.
+// TODO // Es un parámetro opcional, su valor default es 10, y su valor máximo es 20.
 
-// ListItem listar bd aún no funcionan los filtros
+// ListItem listar bd aún no funcionan todos los filtros
 func (iRepo *itemRepository) ListItem(status string) []dom.Item {
 	// TODO filtrado por fecha y limite, agregar param en la interfaz y en la func ", limit int"
 
