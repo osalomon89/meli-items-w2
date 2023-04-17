@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b72b2eff-6e6c-4f54-a4e2-4a7f5eb3645b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Internal/controller/item_controller.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Internal/domain/item.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Internal/controller/item_controller.go" beforeDir="false" afterPath="$PROJECT_DIR$/Internal/controller/item_controller.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Internal/repository/item_respositori.go" beforeDir="false" afterPath="$PROJECT_DIR$/Internal/repository/item_respositori.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Internal/usecase/item_usecase.go" beforeDir="false" afterPath="$PROJECT_DIR$/Internal/usecase/item_usecase.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,6 +51,11 @@
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cmdapi" />
+    </key>
+  </component>
   <component name="RunManager" selected="Go Build.go build main.go">
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="meli-items-w2" />

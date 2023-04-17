@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	ctlr "meli-items-w2/Internal/controller"
+	"meli-items-w2/Internal/adapters/controller"
+	"meli-items-w2/Internal/adapters/repository"
 	"meli-items-w2/Internal/usecase"
 )
 
@@ -13,15 +14,16 @@ func main() {
 
 	r := gin.Default()
 
-	itemUseCase := usecase.NewItemUsecase()
-	itemController := ctlr.NewItemContrller(itemUseCase)
+	itemRepository := repository.NewItemRepository()
+	itemUseCase := usecase.NewItemUsecase(itemRepository)
+	itemController := controller.NewItemContrller(itemUseCase)
 
-	r.GET("/", ctlr.Index)
-	r.GET("v1/items", itemController.GetItem)
+	//r.GET("/", ctlr.Index)
 	r.POST("v1/items", itemController.AddItem)
-	r.GET("v1/items/:id", ctlr.GetItemById)
-	r.PUT("v1/items/:id", ctlr.UpdateItem)
-	r.DELETE("v1/items/:id", ctlr.DeleteItem)
+	r.PUT("v1/items/:id", itemController.UpdateItem)
+	r.GET("v1/items", itemController.GetItem)
+	r.DELETE("v1/items/:id", itemController.DeleteItem)
+	//r.GET("v1/items/:id", itemController.GetItems)
 
 	r.Run(port)
 	if err := r.Run(port); err != nil {

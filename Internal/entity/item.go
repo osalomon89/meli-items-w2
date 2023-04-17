@@ -1,4 +1,6 @@
-package domain
+package entity
+
+import "time"
 
 type Item struct {
 	Id          int     `json:"id"`
@@ -10,5 +12,14 @@ type Item struct {
 	Status      string  `json:"status"`
 	CreatAt     string  `json:"creat_at"`
 	UpdateAt    string  `json:"update_at"`
-	Author      string  `json:"author"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+type ItemRepository interface {
+	AddItem(item Item) *Item
+	UpdateItem(item Item, id int) *Item
+	GetItem(id int) *Item
+	DeleteItem(id int) *Item
+	GetItems(status string, limit int) []Item
+	GetDB() []Item
 }
