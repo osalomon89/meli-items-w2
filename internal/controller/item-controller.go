@@ -103,7 +103,7 @@ func (ctrl *ItemController) AddItem(c *gin.Context) {
 	if my_err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Errorf("HUBO UN ERROR: %s",my_err.Error()), // No me está imprimiendo el error
+			Data:  fmt.Sprintf("HUBO UN ERROR: %s",my_err.Error()), // No me está imprimiendo el error
 		})
 		return
 	}
@@ -144,7 +144,7 @@ func (ctrl *ItemController) UpdateItem(c *gin.Context) {
 	if my_err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Errorf("HUBO UN ERROR: %s",my_err.Error()),
+			Data:  fmt.Sprintf("HUBO UN ERROR: %s",my_err.Error()),
 		})
 		return
 	}
@@ -173,7 +173,7 @@ func (ctrl *ItemController) GetItems(c *gin.Context){
 	if err1 != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Errorf("HUBO UN ERROR: %s",err1.Error()),
+			Data:  fmt.Sprintf("HUBO UN ERROR: %s",err1.Error()),
 		})
 		return
 	}
