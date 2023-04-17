@@ -16,4 +16,6 @@ type Item struct {
 	UpdateAt    time.Time `json:"updateAt"`
 }
 
-//aca iria la interface de repositorio pero va a ir en el port
+type ItemNotFound struct {
+	Message string
+}

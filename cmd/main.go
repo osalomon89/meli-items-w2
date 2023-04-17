@@ -5,11 +5,14 @@ package main
 
 import (
 	"gigigarino/challengeMELI/internal/infraestructure/controller"
-	"gigigarino/challengeMELI/internal/infraestructure/repository"
+	"gigigarino/challengeMELI/internal/infraestructure/repository/in-memory"
+	"gigigarino/challengeMELI/internal/infraestructure/repository/mysql"
 	"gigigarino/challengeMELI/internal/usecase"
 	"log"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 //llamar las funciones del controller
@@ -63,6 +66,14 @@ func main() {
 	}
 
 	*/
+
+	//mysql
+
+	conn, err := mysql.RepositoryConn()
+	if err != nil {
+		log.Fatal(err)
+	}
+	
 
 	r := gin.Default()
 
