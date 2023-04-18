@@ -4,5 +4,8 @@ import (
 	dom "github.com/osalomon89/neocamp-meli-w2/domain"
 )
 
-type itemRepository struct {
+type ItemRepository struct {
 	items []dom.Item
+
+	
+}
