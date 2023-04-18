@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Item struct {
 	Id          int       `json:"id"`
@@ -15,10 +18,28 @@ type Item struct {
 }
 
 type ItemRepository interface {
-	AddItem(item Item) *Item
-	UpdateItem(item Item, id int) *Item
-	GetItem(id int) *Item
-	DeleteItem(id int) *Item
-	GetItems(status string, limit int) []Item
-	GetDB() []Item
+	AddItem(item *Item) error
+	UpdateItem(item *Item, id int) (Item, error)
+	GetItem(id int) (Item, error)
+	DeleteItem(id int) (Item, error)
+	GetItems(status string, limit int) ([]Item, error)
+	ValidateCode(code string) (bool, error)
+	ValidateCodeUpdate(item Item, id int) (bool, error)
+	ValidateStatus(int) string
+}
+
+type ItemAlreadyExist struct {
+	Message string
+}
+
+func (e ItemAlreadyExist) Error() string {
+	return fmt.Sprintf("error: '%s'", e.Message)
+}
+
+type ItemNotFound struct {
+	Message string
+}
+
+func (i ItemNotFound) Error() string {
+	return i.Message
 }

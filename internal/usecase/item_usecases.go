@@ -1,18 +1,17 @@
 package usecase
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/osalomon89/meli-items-w2/internal/entity"
 )
 
 type ItemUsecase interface {
-	AddItem(item entity.Item) (*entity.Item, error)
-	UpdateItemById(item entity.Item, id int) (*entity.Item, error)
-	GetItemById(id int) *entity.Item
-	DeleteItemById(id int) *entity.Item
-	GetAllItems(status string, limit int) []entity.Item
+	AddItem(item entity.Item) (entity.Item, error)
+	UpdateItemById(item entity.Item, id int) (entity.Item, error)
+	GetItemById(id int) (entity.Item, error)
+	DeleteItemById(id int) (entity.Item, error)
+	GetAllItems(status string, limit int) ([]entity.Item, error)
 }
 
 type itemUsecase struct {
@@ -25,49 +24,62 @@ func NewItemUsecase(repo entity.ItemRepository) ItemUsecase {
 	}
 }
 
-func (uc *itemUsecase) AddItem(item entity.Item) (*entity.Item, error) {
-	if err := uc.validateCode(item.Code); err != nil {
-		return nil, err
+func (uc *itemUsecase) AddItem(item entity.Item) (entity.Item, error) {
+	isDuplicated, err := uc.repo.ValidateCode(item.Code)
+	if err != nil {
+		return item, fmt.Errorf("error in repository: %w", err)
 	}
-	return uc.repo.AddItem(item), nil
-}
-
-func (uc *itemUsecase) UpdateItemById(item entity.Item, id int) (*entity.Item, error) {
-	if err := uc.validateCodeUpdate(item, id); err != nil {
-		return nil, err
-	}
-	return uc.repo.UpdateItem(item, id), nil
-}
-
-func (uc *itemUsecase) GetItemById(id int) *entity.Item {
-	return uc.repo.GetItem(id)
-}
-
-func (uc *itemUsecase) DeleteItemById(id int) *entity.Item {
-	return uc.repo.DeleteItem(id)
-}
-
-func (uc *itemUsecase) GetAllItems(status string, limit int) []entity.Item {
-	return uc.repo.GetItems(status, limit)
-}
-
-// *****************Funciones auxiliares*****************
-func (uc *itemUsecase) validateCode(code string) error {
-
-	for _, v := range uc.repo.GetDB() {
-		if v.Code == code {
-			return errors.New(fmt.Sprintf("The code '%s' already exists", code))
+	if isDuplicated {
+		return item, entity.ItemAlreadyExist{
+			Message: "Item already exists",
 		}
 	}
-	return nil
+	if err = uc.repo.AddItem(&item); err != nil {
+		return item, fmt.Errorf("error in repository: %w", err)
+	}
+
+	return item, nil
 }
 
-func (uc *itemUsecase) validateCodeUpdate(item entity.Item, id int) error {
-
-	for _, v := range uc.repo.GetDB() {
-		if v.Code == item.Code && v.Id != id {
-			return errors.New(fmt.Sprintf("The code '%s' already exists", item.Code))
+func (uc *itemUsecase) UpdateItemById(item entity.Item, id int) (entity.Item, error) {
+	isDuplicated, err := uc.repo.ValidateCodeUpdate(item, id)
+	if err != nil {
+		return item, fmt.Errorf("error in repository: %w", err)
+	}
+	if isDuplicated {
+		return item, entity.ItemAlreadyExist{
+			Message: "Item already exists",
 		}
 	}
-	return nil
+
+	result, err := uc.repo.UpdateItem(&item, id)
+	if err != nil {
+		return item, fmt.Errorf("error in repository: %w", err)
+	}
+
+	return result, nil
+}
+
+func (uc *itemUsecase) GetItemById(id int) (entity.Item, error) {
+	item, err := uc.repo.GetItem(id)
+	if err != nil {
+		return entity.Item{}, fmt.Errorf("error in repository: %w", err)
+	}
+	return item, nil
+}
+
+func (uc *itemUsecase) DeleteItemById(id int) (entity.Item, error) {
+	item, err := uc.repo.DeleteItem(id)
+	if err != nil {
+		return entity.Item{}, fmt.Errorf("error in repository: %w", err)
+	}
+	return item, nil
+}
+
+func (uc *itemUsecase) GetAllItems(status string, limit int) ([]entity.Item, error) {
+	items, err := uc.repo.GetItems(status, limit)
+	if err != nil {
+		return []entity.Item{}, fmt.Errorf("error in repository: %w", err)
+	}
+	return items, nil
 }
