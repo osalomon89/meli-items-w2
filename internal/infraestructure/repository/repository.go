@@ -71,7 +71,7 @@ func (iRepo *itemRepository) UpdateItem(item dom.Item, id int) *dom.Item {
 	itemFound.Status = statusCheck(item.Stock)
 	itemFound.UpdatedAt = time.Now()
 
-	if validateItem(item) == nil {
+	if validateItem(item) != nil {
 		return nil
 	}
 
@@ -117,6 +117,8 @@ func (iRepo *itemRepository) ListItem(status string) []dom.Item {
 		if item.Status == status {
 			dbFiltered = append(dbFiltered, item)
 			return dbFiltered
+		} else if status == "" {
+			return iRepo.itemsDB
 		}
 
 	}

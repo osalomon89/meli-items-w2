@@ -46,7 +46,7 @@ func (ctrl *ItemController) AddItem(c *gin.Context) {
 	if result == nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+			Data:  gin.H{"invalid param": fmt.Sprint(err.Error())},
 		})
 		return
 	}
