@@ -27,14 +27,14 @@ type itemRequestJSON struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
 	Price       int    `json:"price" binding:"required"`
-	Stock       int    `json:"stock" binding:"required"`
+	Stock       int    `json:"stock"`
 }
 
 func (ic *ItemController) AddItem(c *gin.Context) {
 
 	var itemRequest itemRequestJSON
 
-	if err := c.ShouldBindJSON(itemRequest); err != nil {
+	if err := c.ShouldBindJSON(&itemRequest); err != nil {
 		c.JSON(http.StatusBadRequest, presenter.ApiError{
 			StatusCode: http.StatusBadRequest,
 			Message:    fmt.Sprintf("Invalid json: %s", err.Error()),
@@ -92,7 +92,7 @@ func (ic *ItemController) UpdateItem(c *gin.Context) {
 
 	var itemRequest itemRequestJSON
 
-	if err = c.ShouldBindJSON(itemRequest); err != nil {
+	if err = c.ShouldBindJSON(&itemRequest); err != nil {
 		c.JSON(http.StatusBadRequest, presenter.ApiError{
 			StatusCode: http.StatusBadRequest,
 			Message:    fmt.Sprintf("invalid json: %s", err.Error()),
@@ -212,9 +212,10 @@ func (ic *ItemController) DeleteItem(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, presenter.ItemResponse{
-		Error: false,
-		Data:  presenter.Item(item),
+	c.JSON(http.StatusOK, presenter.ItemDeletedResponse{
+		Error:   false,
+		Message: fmt.Sprintf("Item with id '%d' deleted", id),
+		Data:    presenter.Item(item),
 	})
 }
 

@@ -31,7 +31,7 @@ func (uc *itemUsecase) AddItem(item entity.Item) (entity.Item, error) {
 	}
 	if isDuplicated {
 		return item, entity.ItemAlreadyExist{
-			Message: "Item already exists",
+			Message: fmt.Sprintf("Item already exists with code '%s", item.Code),
 		}
 	}
 	if err = uc.repo.AddItem(&item); err != nil {
