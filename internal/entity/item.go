@@ -21,10 +21,10 @@ type ItemRepository interface {
 	AddItem(item *Item) error
 	UpdateItem(item *Item, id int) (Item, error)
 	GetItem(id int) (Item, error)
-	DeleteItem(id int) (Item, error)
+	DeleteItem(id int) error
 	GetItems(status string, limit int) ([]Item, error)
 	ValidateCode(code string) (bool, error)
-	ValidateCodeUpdate(item Item, id int) (bool, error)
+	ValidateCodeUpdate(code string, id int) (bool, error)
 	ValidateStatus(int) string
 }
 
@@ -40,6 +40,6 @@ type ItemNotFound struct {
 	Message string
 }
 
-func (i ItemNotFound) Error() string {
-	return i.Message
+func (e ItemNotFound) Error() string {
+	return fmt.Sprintf("error: '%s'", e.Message)
 }

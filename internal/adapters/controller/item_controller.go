@@ -191,7 +191,7 @@ func (ic *ItemController) DeleteItem(c *gin.Context) {
 		return
 	}
 
-	item, err := ic.itemUsecase.DeleteItemById(id)
+	err = ic.itemUsecase.DeleteItemById(id)
 	if err != nil {
 		var status int
 		var msg string
@@ -215,7 +215,6 @@ func (ic *ItemController) DeleteItem(c *gin.Context) {
 	c.JSON(http.StatusOK, presenter.ItemDeletedResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Item with id '%d' deleted", id),
-		Data:    presenter.Item(item),
 	})
 }
 

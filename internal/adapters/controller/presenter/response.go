@@ -11,7 +11,6 @@ type ItemsResponse struct {
 }
 
 type ItemDeletedResponse struct {
-	Error   bool     `json:"error"`
-	Message string   `json:"message"`
-	Data    ItemJson `json:"data"`
+	Error   bool   `json:"error"`
+	Message string `json:"message"`
 }

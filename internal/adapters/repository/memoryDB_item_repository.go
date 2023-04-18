@@ -64,14 +64,14 @@ func (repo *itemRepository) GetItem(id int) (entity.Item, error) {
 
 }
 
-func (repo *itemRepository) DeleteItem(id int) (entity.Item, error) {
+func (repo *itemRepository) DeleteItem(id int) error {
 	for k, v := range repo.db {
 		if v.Id == id {
 			repo.db = append(repo.db[:k], repo.db[k+1:]...)
-			return v, nil
+			return nil
 		}
 	}
-	return entity.Item{}, entity.ItemNotFound{
+	return entity.ItemNotFound{
 		Message: fmt.Sprintf("Item with id '%d' not found", id),
 	}
 }
@@ -119,10 +119,10 @@ func (repo *itemRepository) ValidateCode(code string) (bool, error) {
 	return false, nil
 }
 
-func (repo *itemRepository) ValidateCodeUpdate(item entity.Item, id int) (bool, error) {
+func (repo *itemRepository) ValidateCodeUpdate(code string, id int) (bool, error) {
 
 	for _, v := range repo.db {
-		if v.Code == item.Code && v.Id != id {
+		if v.Code == code && v.Id != id {
 			return true, nil
 		}
 	}

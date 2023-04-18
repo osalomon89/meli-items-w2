@@ -10,7 +10,7 @@ type ItemUsecase interface {
 	AddItem(item entity.Item) (entity.Item, error)
 	UpdateItemById(item entity.Item, id int) (entity.Item, error)
 	GetItemById(id int) (entity.Item, error)
-	DeleteItemById(id int) (entity.Item, error)
+	DeleteItemById(id int) error
 	GetAllItems(status string, limit int) ([]entity.Item, error)
 }
 
@@ -42,7 +42,7 @@ func (uc *itemUsecase) AddItem(item entity.Item) (entity.Item, error) {
 }
 
 func (uc *itemUsecase) UpdateItemById(item entity.Item, id int) (entity.Item, error) {
-	isDuplicated, err := uc.repo.ValidateCodeUpdate(item, id)
+	isDuplicated, err := uc.repo.ValidateCode(item.Code)
 	if err != nil {
 		return item, fmt.Errorf("error in repository: %w", err)
 	}
@@ -68,12 +68,12 @@ func (uc *itemUsecase) GetItemById(id int) (entity.Item, error) {
 	return item, nil
 }
 
-func (uc *itemUsecase) DeleteItemById(id int) (entity.Item, error) {
-	item, err := uc.repo.DeleteItem(id)
+func (uc *itemUsecase) DeleteItemById(id int) error {
+	err := uc.repo.DeleteItem(id)
 	if err != nil {
-		return entity.Item{}, fmt.Errorf("error in repository: %w", err)
+		return fmt.Errorf("error in repository: %w", err)
 	}
-	return item, nil
+	return nil
 }
 
 func (uc *itemUsecase) GetAllItems(status string, limit int) ([]entity.Item, error) {
