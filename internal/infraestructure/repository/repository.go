@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	dom "meli-items-w2/internal/domain"
 	"time"
@@ -131,7 +132,7 @@ func (iRepo *itemRepository) ListItem(status string) []dom.Item {
 
 var repo itemRepository
 
-func statusCheck(stock int) string {
+func statusCheck(stock uint) string {
 	if stock > 0 {
 		return "ACTIVE"
 	}
@@ -183,14 +184,17 @@ func generateCode() string {
 func validateItem(item dom.Item) error {
 
 	if item.Title == "" || item.Description == "" {
+		fmt.Sprintf("Entro al if decoder")
 		return errors.New("tittle or description are required")
 	}
 
 	if item.Price < 0 || item.Stock < 0 {
+		fmt.Sprintf("Entro al if decoder")
 		return errors.New("price or stock should be greater than 0")
 	}
 
 	if item.Code == "" || len(item.Code) != 11 {
+		fmt.Sprintf("Entro al if decoder")
 		return errors.New("code is not valid")
 	}
 

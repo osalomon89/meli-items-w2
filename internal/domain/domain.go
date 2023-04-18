@@ -7,8 +7,8 @@ type Item struct {
 	Code        string    `json:"code"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Price       int       `json:"price"`
-	Stock       int       `json:"stock"`
+	Price       uint      `json:"price"`
+	Stock       uint      `json:"stock"`
 	Status      string    `json:"status"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`

@@ -34,16 +34,19 @@ func (ctrl *ItemController) AddItem(c *gin.Context) {
 	var item dom.Item
 
 	err := json.NewDecoder(body).Decode(&item)
+	fmt.Sprintf("Entro al decoder")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
 			Data:  gin.H{"invalid json": fmt.Sprint(err.Error())},
 		})
+		fmt.Sprintf("Entro al if decoder")
 		return
 	}
 
 	result := ctrl.itemUsecase.AddItem(item)
 	if result == nil {
+		fmt.Sprintf("nil de addItem")
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
 			Data:  gin.H{"invalid param": fmt.Sprint(err.Error())},
@@ -66,7 +69,7 @@ func (ctrl *ItemController) UpdateItem(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+			Data:  gin.H{fmt.Sprintf("invalid param: %s", err.Error()): err},
 		})
 		return
 	}
@@ -77,7 +80,7 @@ func (ctrl *ItemController) UpdateItem(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid json: %s", err.Error()),
+			Data:  gin.H{fmt.Sprintf("invalid json: %s", err.Error()): err},
 		})
 		return
 	}
@@ -87,7 +90,7 @@ func (ctrl *ItemController) UpdateItem(c *gin.Context) {
 	if result == nil {
 		c.JSON(http.StatusNotFound, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("Item with id '%d' not found", id),
+			Data:  gin.H{fmt.Sprintf("Item with id '%d' not found", id): err},
 		})
 		return
 	}
@@ -108,7 +111,7 @@ func (ctrl *ItemController) GetItemByID(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+			Data:  gin.H{fmt.Sprintf("invalid param: %s", err.Error()): err},
 		})
 		return
 	}
@@ -117,7 +120,7 @@ func (ctrl *ItemController) GetItemByID(c *gin.Context) {
 	if item == nil {
 		c.JSON(http.StatusNotFound, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("Item with id '%d' not found", id),
+			Data:  gin.H{fmt.Sprintf("Item with id '%d' not found", id): err},
 		})
 		return
 	}
@@ -136,7 +139,7 @@ func (ctrl *ItemController) DeleteItem(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+			Data:  gin.H{fmt.Sprintf("invalid param: %s", err.Error()): err},
 		})
 	}
 
@@ -144,7 +147,7 @@ func (ctrl *ItemController) DeleteItem(c *gin.Context) {
 	if item == nil {
 		c.JSON(http.StatusNotFound, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("Item with id '%d' not found", id),
+			Data:  gin.H{fmt.Sprintf("Item with id '%d' not found", id): err},
 		})
 		return
 	}
@@ -165,6 +168,13 @@ func (ctrl *ItemController) ListItem(c *gin.Context) {
 	status := c.Query("status")
 
 	result := ctrl.itemUsecase.ListItem(status)
+	if result == nil {
+		c.JSON(http.StatusNotFound, responseInfo{
+			Error: true,
+			Data:  gin.H{"No data found": result},
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": result,
