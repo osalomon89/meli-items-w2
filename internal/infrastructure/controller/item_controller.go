@@ -10,30 +10,39 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-
 	dom "github.com/javmoreno-meli/meli-item-w2/internal/domain"
 )
 
 //Para evitar hacer las funciones PUBLICAS podemos crear constructures y hacer que las funciones
 //pasen a ser metodos de ese contructor  -> 	Queda pendiente hacer eso
 
-//Nota: que va en Usecases (app)
+var db []dom.Item //mantener por ahora
+type ItemController struct {
+	//itemUseCase usecase.ItemUseCase
+	db []dom.Item
+}
 
-var Db []dom.Item // esta varaible hara las pases de una base de datos
+// Constructor
+func NewItemController() *ItemController {
+	return &ItemController{
+		//Aca toca colocar (itemUseCase)
+	}
+}
+
 type responseInfo struct {
 	Error bool        `json:"error"`
 	Data  interface{} `json:"data"`
 }
 
-func GetItems(gin *gin.Context) {
+func (c *ItemController) GetItems(gin *gin.Context) {
 	gin.JSON(http.StatusOK, responseInfo{
 		Error: false,
-		Data:  Db,
+		Data:  c.db,
 	})
 }
 
 // Funcion para agregar item
-func AddItems(gin *gin.Context) {
+func (c *ItemController) AddItems(gin *gin.Context) {
 	//Otra forma : body = gin.Request.Body
 	request := gin.Request
 	body := request.Body
@@ -75,9 +84,9 @@ func AddItems(gin *gin.Context) {
 	}
 	item.CreatedAt = time.Now()
 	item.UpdatedAt = item.CreatedAt
-	newId := generateID(Db)
+	newId := generateID(c.db)
 	item.ID = newId
-	Db = append(Db, item)
+	c.db = append(c.db, item)
 	gin.JSON(http.StatusOK, responseInfo{
 		Error: false,
 		Data:  item,
@@ -86,7 +95,7 @@ func AddItems(gin *gin.Context) {
 }
 
 // Listar item por id
-func GetItemsById(gin *gin.Context) {
+func (c *ItemController) GetItemsById(gin *gin.Context) {
 	idParam := gin.Param("id")
 	id, err := strconv.Atoi(idParam)
 
@@ -98,7 +107,7 @@ func GetItemsById(gin *gin.Context) {
 		return
 	}
 
-	for _, value := range Db {
+	for _, value := range c.db {
 		if value.ID == id {
 			gin.JSON(http.StatusOK, responseInfo{
 				Error: false,
@@ -109,7 +118,7 @@ func GetItemsById(gin *gin.Context) {
 }
 
 // Actualizar item por ID
-func UpdateItems(gin *gin.Context) {
+func (c *ItemController) UpdateItems(gin *gin.Context) {
 	idParam := gin.Param("id")
 	id, err := strconv.Atoi(idParam)
 
@@ -161,7 +170,7 @@ func UpdateItems(gin *gin.Context) {
 }
 
 // Funcion Delete
-func DeleteItem(gin *gin.Context) {
+func (c *ItemController) DeleteItem(gin *gin.Context) {
 	idParam := gin.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -181,9 +190,9 @@ func DeleteItem(gin *gin.Context) {
 		return
 	}
 
-	for i, item := range Db {
+	for i, item := range c.db {
 		if item.ID == id {
-			Db = append(Db[:i], Db[i+1:]...)
+			c.db = append(c.db[:i], c.db[i+1:]...)
 			break
 		}
 	}
@@ -249,9 +258,9 @@ func changeItemStatus(item *dom.Item) error {
 
 // Buscar id en slice
 func findItemById(id int) *dom.Item {
-	for i := range Db {
-		if Db[i].ID == id {
-			return &Db[i]
+	for i := range db {
+		if db[i].ID == id {
+			return &db[i]
 		}
 	}
 	return nil
@@ -260,8 +269,8 @@ func findItemById(id int) *dom.Item {
 // codigo unico
 func verifyCode(code string) bool {
 
-	for i := range Db {
-		if Db[i].Code == code {
+	for i := range db {
+		if db[i].Code == code {
 			return false
 		}
 	}
