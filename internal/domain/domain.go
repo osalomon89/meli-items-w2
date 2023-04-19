@@ -20,5 +20,9 @@ type ItemRepository interface {
 	GetItemById(id int) *Item
 	DeleteItem(id int) *Item
 	ListItem(status string) []Item
+
+	GetNextId() int
+	GetItemByCode(code string) *Item
+
 	GetDB() []Item
 }
