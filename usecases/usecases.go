@@ -2,7 +2,7 @@ package usecases
 
 import (
 "errors"
-repo "github.com/osalomon89/neocamp-meli-w2/controller/repository"
+repo "github.com/osalomon89/neocamp-meli-w2/controller"
 dom "github.com/osalomon89/neocamp-meli-w2/domain"
 
 )
@@ -37,6 +37,17 @@ func (u *usecases) UpdateItem(item dom.Item)error{
 }
 
 func (u *usecases) GetItem(item dom.Item)error{
-	
+	var db []dom.Item
+	var itemEncontrado  dom.Item
+	for _, dbItem := range db {
+		if item == dbItem{
+			itemEncontrado = dbItem
+			break
+		}
+	}
+	if itemEncontrado == (dom.Item{}) {
+		return errors.New("item no encontrado")
+	}
+
 	return nil
 }

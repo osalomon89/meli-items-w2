@@ -49,7 +49,7 @@ func (ctrl *controller) UpdateItem(ctx *gin.Context) {
 
 	item.ID = idInt
 
-	err = ctrl.ucService.UpdateItem(item)
+	err = ctrl.ucRepository.UpdateItem(item)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": true,
@@ -65,27 +65,7 @@ func (ctrl *controller) UpdateItem(ctx *gin.Context) {
 }
 
 
-
-
-		
-
-	/*
-		for i, _ := range db {
-			if db[i].ID == id {
-				db[i].Title = item.Title
-				db[i].Description = item.Description
-				db[i].Code = item.Code
-				db[i].Price = item.Price
-	
-				ctx.JSON(http.StatusOK, gin.H{"data": db[i]})
-				return
-			}
-		}
-	*/
-	// 	ctx.JSON(http.StatusNotFound, gin.H{"error": err})
-	// }
-
-	func (ctrl *controller) getItem(ctx *gin.Context) {
+	func (ctrl *controller) GetItem(ctx *gin.Context) {
 		request := ctx.Request
 		body := request.Body
 	
@@ -99,8 +79,14 @@ func (ctrl *controller) UpdateItem(ctx *gin.Context) {
 			})
 			return
 		}
-		err = ctrl.ucRepository.(item)
-
+		//Aca iria ucService o ucRepository?
+		err = ctrl.ucService.GetItem(item)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error": true,
+				"data": err.Error(),
+			})
+		}
 
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err})
 	}
