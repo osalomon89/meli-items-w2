@@ -3,7 +3,6 @@ que utlizamos (estan afuera de nuestra app y nos comunicamos con ellas de alguna
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,21 +10,21 @@ import (
 
 	"github.com/gin-gonic/gin"
 	dom "github.com/javmoreno-meli/meli-item-w2/internal/domain"
+	usecase "github.com/javmoreno-meli/meli-item-w2/internal/usecase"
 )
 
 //Para evitar hacer las funciones PUBLICAS podemos crear constructures y hacer que las funciones
 //pasen a ser metodos de ese contructor  -> 	Queda pendiente hacer eso
 
-var db []dom.Item //mantener por ahora
 type ItemController struct {
-	//itemUseCase usecase.ItemUseCase
-	db []dom.Item
+	itemUseCase usecase.ItemUseCase
+	//db []dom.Item
 }
 
 // Constructor
-func NewItemController() *ItemController {
+func NewItemController(itemUseCase usecase.ItemUseCase) *ItemController {
 	return &ItemController{
-		//Aca toca colocar (itemUseCase)
+		itemUseCase: itemUseCase, //Aca toca colocar (itemUseCase)
 	}
 }
 
@@ -35,9 +34,17 @@ type responseInfo struct {
 }
 
 func (c *ItemController) GetItems(gin *gin.Context) {
+	items, err := c.itemUseCase.GetItems()
+	if err != nil {
+		gin.JSON(http.StatusInternalServerError, responseInfo{
+			Error:  true,
+			ErrMsg: err.Error(),
+		})
+		return
+	}
 	gin.JSON(http.StatusOK, responseInfo{
 		Error: false,
-		Data:  c.db,
+		Data:  items,
 	})
 }
 
@@ -206,7 +213,7 @@ func (c *ItemController) DeleteItem(gin *gin.Context) {
 
 // Funcion para generar ID
 // Recibir un SLICE de tipo item
-func generateID(items []dom.Item) int {
+/* func generateID(items []dom.Item) int {
 	maxId := 0
 	for i := 0; i < len(items); i++ {
 		if items[i].ID > maxId {
@@ -214,13 +221,13 @@ func generateID(items []dom.Item) int {
 		}
 	}
 	return maxId + 1
-}
+} */
 
 //Funcion para verificar que el code no este repetido
 
 // Funcion para cambiar el STATUS segun el STOCK
 
-func requeriedFields(item *dom.Item) error {
+/* func requeriedFields(item *dom.Item) error {
 	if item == nil {
 		return errors.New("item is nil")
 	}
@@ -241,9 +248,9 @@ func requeriedFields(item *dom.Item) error {
 		return errors.New("stock need be greater that 0")
 	}
 	return nil
-}
+} */
 
-func changeItemStatus(item *dom.Item) error {
+/* func changeItemStatus(item *dom.Item) error {
 	if item == nil {
 		return errors.New("item is nil")
 	}
@@ -254,20 +261,20 @@ func changeItemStatus(item *dom.Item) error {
 
 	item.Status = "ACTIVE"
 	return nil
-}
+} */
 
-// Buscar id en slice
-func findItemById(id int) *dom.Item {
+/* func findItemById(id int) *dom.Item {
 	for i := range db {
 		if db[i].ID == id {
 			return &db[i]
 		}
 	}
 	return nil
-}
+} */
 
 // codigo unico
-func verifyCode(code string) bool {
+
+/* func verifyCode(code string) bool {
 
 	for i := range db {
 		if db[i].Code == code {
@@ -276,9 +283,10 @@ func verifyCode(code string) bool {
 	}
 	return true
 }
+*/
 
 // Actualizar campos (items)  (Comparar original con la que entra (copia))
-func updateFields(item *dom.Item, updateItem dom.Item) {
+/* func updateFields(item *dom.Item, updateItem dom.Item) {
 	if updateItem.Code != "" {
 		item.Code = updateItem.Code
 	}
@@ -295,3 +303,4 @@ func updateFields(item *dom.Item, updateItem dom.Item) {
 		item.Stock = updateItem.Stock
 	}
 }
+*/
