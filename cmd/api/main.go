@@ -6,7 +6,6 @@ package main
 import (
 	"gigigarino/challengeMELI/internal/infraestructure/controller"
 	"gigigarino/challengeMELI/internal/infraestructure/repository/in-memory"
-	"gigigarino/challengeMELI/internal/infraestructure/repository/mysql"
 	"gigigarino/challengeMELI/internal/usecase"
 	"log"
 	"net/http"
@@ -68,12 +67,12 @@ func main() {
 	*/
 
 	//mysql
-
+	/*
 	conn, err := mysql.RepositoryConn()
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+	*/
 
 	r := gin.Default()
 

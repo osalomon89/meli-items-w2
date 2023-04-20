@@ -25,6 +25,7 @@ type itemUsecase struct {
 }
 
 //funcion new
+//aca lo mockeable es el repo
 func NewItemUsecase(repo port.ItemRepository) port.ItemUsecase {
 	return itemUsecase{
 		repo: repo,

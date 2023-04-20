@@ -42,7 +42,7 @@ func (r *itemRepository) GetItemById(id int) *domain.Item{
 
 
 
-func (r * itemRepository) AddItem (item domain.Item) *domain.Item{
+func (r * itemRepository) AddItem(item domain.Item) *domain.Item{
 	r.articulos = append(r.articulos, item)
 	return &item
 }
