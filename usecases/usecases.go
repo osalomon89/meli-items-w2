@@ -2,7 +2,6 @@ package usecases
 
 import (
 "errors"
-repo "github.com/osalomon89/neocamp-meli-w2/controller"
 dom "github.com/osalomon89/neocamp-meli-w2/domain"
 
 )
@@ -33,7 +32,7 @@ func (u *usecases) UpdateItem(item dom.Item)error{
 		// }
 	// }
 	
-	return errors.New("no se actualizó")
+	// return errors.New("no se actualizó")
 }
 
 func (u *usecases) GetItem(item dom.Item)error{

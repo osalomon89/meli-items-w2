@@ -16,10 +16,10 @@ type controller struct {
 	ucRepository domainPorts.Repository
 }
 
-func NewController(ucService domainPorts.UseCasesService, ucRepository domainPorts.Repository ) *controller{
+func NewController(ucService domainPorts.UseCasesService) *controller{
 	controllerService := controller{
 		ucService: ucService,
-		ucRepository: ucRepository,
+
 	}
 	return &controllerService
 }
@@ -102,7 +102,7 @@ func (ctrl *controller) UpdateItem(ctx *gin.Context) {
 			})
 			return
 		}
-	
+		//Llamo al metodo de la interfaz.
 		itemEliminado := ctrl.ucService.DeleteItem(id)
 	
 		if !itemEliminado {

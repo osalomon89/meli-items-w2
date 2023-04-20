@@ -60,8 +60,9 @@ func main() {
 	}
 	
 	useCasesSerce := useCaseService.NewUseCases()
+	
 
-	controllerService := controllerService.NewController(useCasesSerce)
+	controllerService := controllerService.NewController(useCasesSerce, )
 	
 
 	db = append(db, item1, item2)
@@ -70,12 +71,12 @@ func main() {
 
 	r.GET("/ping", pong)
 
-	//preguntar a dami
-	r.GET("/api/v1/items", controllerService.getItem)
+
+	r.GET("/api/v1/items", controllerService.GetItem)
 	r.GET("/api/v1/items/:id", getItemsById)
 	r.PUT("/api/v1/items/:id", controllerService.UpdateItem)
 	r.POST("/api/v1/items", addItem)
-	r.DELETE("/api/v1/items/:id", deleteItem)
+	r.DELETE("/api/v1/items/:id", controllerService.DeleteItem)
 
 	r.Run(port)
 }
