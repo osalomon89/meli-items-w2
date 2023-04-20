@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
-	"time"
+
+	//"strconv"
+	//"time"
 
 	"github.com/gin-gonic/gin"
 	dom "github.com/javmoreno-meli/meli-item-w2/internal/domain"
@@ -37,8 +38,8 @@ func (c *ItemController) GetItems(gin *gin.Context) {
 	items, err := c.itemUseCase.GetItems()
 	if err != nil {
 		gin.JSON(http.StatusInternalServerError, responseInfo{
-			Error:  true,
-			ErrMsg: err.Error(),
+			Error: true,
+			Data:  err.Error(),
 		})
 		return
 	}
@@ -55,52 +56,21 @@ func (c *ItemController) AddItems(gin *gin.Context) {
 	body := request.Body
 	var item dom.Item
 	err := json.NewDecoder(body).Decode(&item)
+
 	if err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
 			Data:  fmt.Sprintf("Json invalido :V %s", err.Error()),
 		})
 		return
-
 	}
-
-	//cambiar status segun el stock
-	if err := changeItemStatus(&item); err != nil {
-		gin.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  err.Error(),
-		})
-	}
-
-	//Verificar que el codigo sea unico
-	if !verifyCode(item.Code) {
-		gin.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  fmt.Sprintf("Item with code %s already exists", item.Code),
-		})
-		return
-	}
-
-	//Campos  requeridos
-	if err := requeriedFields(&item); err != nil {
-		gin.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  err.Error(),
-		})
-		return
-	}
-	item.CreatedAt = time.Now()
-	item.UpdatedAt = item.CreatedAt
-	newId := generateID(c.db)
-	item.ID = newId
-	c.db = append(c.db, item)
 	gin.JSON(http.StatusOK, responseInfo{
 		Error: false,
 		Data:  item,
 	})
-
 }
 
+/*
 // Listar item por id
 func (c *ItemController) GetItemsById(gin *gin.Context) {
 	idParam := gin.Param("id")
@@ -209,7 +179,7 @@ func (c *ItemController) DeleteItem(gin *gin.Context) {
 		Data:  "Item delete successfully.",
 	})
 
-}
+} */
 
 // Funcion para generar ID
 // Recibir un SLICE de tipo item

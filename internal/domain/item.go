@@ -26,6 +26,7 @@ type ItemRepository interface {
 	VerifyCode(code string) bool
 	FindItemById(id int) *Item
 	ChangeItemStatus(item *Item) error
-	RequeriedFields(item *Item) error
+	RequiredFields(item *Item) error
 	UpdateFields(item *Item, updateItem Item)
+	SaveItem(item Item)
 }

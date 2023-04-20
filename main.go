@@ -53,11 +53,11 @@ func main() {
 	//Guardar un item
 	route.POST("/v1/items", serviceItemController.AddItems)
 	//Listar item by ID
-	route.GET("/v1/items/:id", serviceItemController.GetItemsById)
+	//route.GET("/v1/items/:id", serviceItemController.GetItemsById)
 	//Actualizar item by ID
-	route.PUT("/v1/items/:id", serviceItemController.UpdateItems)
+	//route.PUT("/v1/items/:id", serviceItemController.UpdateItems)
 	//Eliminar item by Id
-	route.DELETE("/v1/items/:id", serviceItemController.DeleteItem)
+	//route.DELETE("/v1/items/:id", serviceItemController.DeleteItem)
 
 	//Hagamos que nuestras Api corra en el puerto que definimos (9001)
 	route.Run(port)

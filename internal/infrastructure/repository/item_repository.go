@@ -29,6 +29,10 @@ func (r *itemRepository) GetDB() []dom.Item {
 
 // funciones que ayudan a las principales :v
 
+func (r *itemRepository) SaveItem(item dom.Item) {
+	r.db = append(r.db, item)
+}
+
 func (r *itemRepository) ChangeItemStatus(item *dom.Item) error {
 	if item == nil {
 		return errors.New("item is nil")
@@ -61,7 +65,7 @@ func (r *itemRepository) GenerateID(items []dom.Item) int {
 	return maxId + 1
 }
 
-func (r *itemRepository) RequeriedFields(item *dom.Item) error {
+func (r *itemRepository) RequiredFields(item *dom.Item) error {
 	if item == nil {
 		return errors.New("item is nil")
 	}
