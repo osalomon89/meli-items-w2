@@ -10,15 +10,15 @@ import (
 
 const port = ":9000"
 
-func NewHTTPServer(bookCtrl ctrl.BookController) error {
+func NewHTTPServer(itemCtrl ctrl.ItemController) error {
 	r := gin.Default()
 
 	basePath := "/api/v1/inventory"
 	publicRouter := r.Group(basePath)
 
-	publicRouter.GET("/books", bookCtrl.GetBooks)
-	publicRouter.POST("/books", bookCtrl.AddBook)
-	publicRouter.GET("/books/:id", bookCtrl.GetBook)
+	publicRouter.GET("/items", itemCtrl.GetItem)
+	publicRouter.POST("/items", itemCtrl.AddItem)
+	publicRouter.GET("/items/:id", itemCtrl.UpdateItem)
 
 	log.Println("Server listening on port", port)
 
