@@ -36,3 +36,7 @@ func (u *usecases) UpdateItem(item dom.Item)error{
 	return errors.New("no se actualizó")
 }
 
+func (u *usecases) GetItem(item dom.Item)error{
+	
+	return nil
+}

@@ -8,6 +8,7 @@ import (
 
 type UseCasesService interface{
 	UpdateItem(dom.Item)error
+	GetItem(dom.Item)error
 }
 
 

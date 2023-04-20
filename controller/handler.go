@@ -16,39 +16,56 @@ type controller struct {
 	ucRepository domainPorts.Repository
 }
 
-func NewController(ucService domainPorts.UseCasesService ) *controller{
+func NewController(ucService domainPorts.UseCasesService, ucRepository domainPorts.Repository ) *controller{
 	controllerService := controller{
 		ucService: ucService,
+		ucRepository: ucRepository,
 	}
 	return &controllerService
 }
 
 
 func (ctrl *controller) UpdateItem(ctx *gin.Context) {
-		
-		idParam := ctx.Param("id")
-		 idInt, err := strconv.Atoi(idParam)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": true,
-				"data":  err.Error(),
-			})
-			return
-		}
-	
-		var item dom.Item
-		err = json.NewDecoder(ctx.Request.Body).Decode(&item)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": true,
-				"data":  err.Error(),
-			})
-			return
-		}
+	idParam := ctx.Param("id")
+	idInt, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
 
-		item.ID = idInt
-		
-		err = ctrl.ucService.UpdateItem(item)
+	var item dom.Item
+
+	err = json.NewDecoder(ctx.Request.Body).Decode(&item)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	item.ID = idInt
+
+	err = ctrl.ucService.UpdateItem(item)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": true,
+			"data":  err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"error": false,
+		"data":  item,
+	})
+}
+
+
+
 
 		
 
@@ -65,6 +82,25 @@ func (ctrl *controller) UpdateItem(ctx *gin.Context) {
 			}
 		}
 	*/
+	// 	ctx.JSON(http.StatusNotFound, gin.H{"error": err})
+	// }
+
+	func (ctrl *controller) getItem(ctx *gin.Context) {
+		request := ctx.Request
+		body := request.Body
+	
+		var item dom.Item
+
+		err := json.NewDecoder(body).Decode(&item)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": true,
+				"data": err.Error(),
+			})
+			return
+		}
+		err = ctrl.ucRepository.(item)
+
+
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err})
 	}
-
