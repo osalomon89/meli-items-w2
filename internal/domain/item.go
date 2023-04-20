@@ -18,3 +18,14 @@ type Item struct {
 	CreatedAt   time.Time `json:"create_at"`
 	UpdatedAt   time.Time `json:"update_at"`
 }
+
+type ItemRepository interface {
+	//DeleteItem(item Item) bool
+	GetDB() []Item
+	GenerateID(item []Item) int
+	VerifyCode(code string) bool
+	FindItemById(id int) *Item
+	ChangeItemStatus(item *Item) error
+	RequeriedFields(item *Item) error
+	UpdateFields(item *Item, updateItem Item)
+}
