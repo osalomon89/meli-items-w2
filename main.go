@@ -1,17 +1,28 @@
 package main
 
 import (
-	"apiRestPractice/controller"
+	"apiRestPractice/app/adapters/item_adapters/controller"
+	"apiRestPractice/app/adapters/item_adapters/repository"
+	"apiRestPractice/app/usecase"
 	"github.com/gin-gonic/gin"
 )
 
+const port = ":9000"
+
 func main() {
-	controller.DataMock()
+	repository.DataMock()
 	server := gin.Default()
-	server.POST("v1/items", controller.AddItem)
-	server.PUT("v1/items/:id", controller.UpdateItem)
-	server.GET("v1/items/:id", controller.GetById)
-	server.DELETE("v1/items/:id", controller.DeleteById)
-	server.GET("v1/items", controller.GetByStatusAndLimit)
-	server.Run(":9000")
+
+	repo := repository.NewItemRepository()
+	itemUsecase := usecase.NewItemUsecase(repo)
+	ctrl := controller.NewItemController(itemUsecase)
+
+	server.POST("v1/items", ctrl.AddItem)
+	server.PUT("v1/items/:id", ctrl.UpdateItem)
+	server.GET("v1/items/:id", ctrl.GetById)
+	server.DELETE("v1/items/:id", ctrl.DeleteById)
+	server.GET("v1/items", ctrl.GetByStatusAndLimit)
+	if err := server.Run(port); err != nil {
+		panic(err)
+	}
 }
