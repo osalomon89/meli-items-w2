@@ -28,7 +28,7 @@ type ItemController struct {
 	itemUseCase usecase.ItemUsecase
 }
 
-func NewItemContrller(itemUseCase *interface{}) *ItemController {
+func NewItemContrller(itemUseCase usecase.ItemUsecase) *ItemController {
 	return &ItemController{
 		itemUseCase: itemUseCase,
 	}
@@ -93,10 +93,10 @@ func (ctrl *ItemController) UpdateItem(c *gin.Context) {
 		})
 		return
 	}
-	if result == nil {
+	if err == nil {
 		c.JSON(http.StatusNotFound, ResponseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("Item no encontrado"),
+			Data:  fmt.Sprintf("Error al actualizar el elemento: %s", err.Error()),
 		})
 		return
 	}
@@ -149,7 +149,7 @@ func (ctrl *ItemController) GetItemById(c *gin.Context) {
 	if item == nil {
 		c.JSON(http.StatusNotFound, ResponseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("Id invalido", err.Error()),
+			Data:  ("No se encontró ningún elemento con el ID %d", id)
 		})
 		return
 	}

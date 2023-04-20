@@ -7,18 +7,18 @@ import (
 )
 
 type ItemUsecase interface {
-	AddItem(item entity.Item) (*entity.Item, error)
-	UpdateItemById(item entity.Item, id int) (*entity.Item, error)
-	GetItemById(id int) *entity.Item
-	DeleteItemById(id int) *entity.Item
-	GetAllItems(status string, limit int) []entity.Item
+	AddItem(item entity.Item) (entity.Item, error)
+	UpdateItemById(item entity.Item, id int) (entity.Item, error)
+	GetItemById(id int) entity.Item
+	//DeleteItemById(id int) entity.Item
+	GetAllItems(status string) []entity.Item
 }
 
 type itemUsecase struct {
 	repo entity.ItemRepository
 }
 
-func NewItemUsecase(repo *interface{}) *itemUsecase {
+func NewItemUsecase(repo entity.ItemRepository) ItemUsecase {
 	return &itemUsecase{
 		repo: repo,
 	}
@@ -54,14 +54,15 @@ func (u *itemUsecase) UpdateItemById(item entity.Item, id int) (entity.Item, err
 	return item, nil
 }
 
-func (u *itemUsecase) GetItemByID(id int) *entity.Item {
-	return u.repo.GetItem(id)
+func (u *itemUsecase) GetItemById(id int) entity.Item {
+	item, _ := u.repo.GetItem(uint(id))
+	return item
 }
 
-func (u *itemUsecase) DeleteItemById(id int) *entity.Item {
-	return u.repo.DeleteItem(id)
-}
+//func (u *itemUsecase) DeleteItemById(id int) entity.Item {
+//	return u.repo.DeleteItem(id)
+//}
 
-func (u *itemUsecase) GetAllItems() []entity.Item {
+func (u *itemUsecase) GetAllItems(status string) []entity.Item {
 	return u.repo.GetItems()
 }

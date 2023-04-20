@@ -10,16 +10,16 @@ type Item struct {
 	Price       float64 `json:"price" validate:"required"`
 	Stock       int     `json:"stock" validate:"required"`
 	Status      string  `json:"status"`
-	CreatAt     string  `json:"creat_at"`
-	UpdateAt    string  `json:"update_at"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	//CreatAt     string  `json:"creat_at"`
+	//UpdateAt    string  `json:"update_at"`
+
 }
 type ItemRepository interface {
-	AddItem(item Item) *Item
-	UpdateItem(item Item, id int) *Item
-	GetItem(id int) *Item
-	DeleteItem(id int) *Item
-	GetItems(status string, limit int) []Item
-	GetDB() []Item
+	AddItem(item *Item) error
+	//UpdateItem(item Item, id int) *Item
+	GetItem(id uint) (Item, error)
+	//DeleteItem(id int) *Item
+	GetItems() []Item
 }

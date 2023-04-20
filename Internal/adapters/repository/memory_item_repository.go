@@ -6,19 +6,13 @@ import (
 	"time"
 )
 
-type ItemRepository interface {
-	GetItems() []entity.Item
-	GetItem(id int) *entity.Item
-	AddItem(item entity.Item) *entity.Item
-}
-
 var newID uint = 0
 
 type itemRepository struct {
 	db []entity.Item
 }
 
-func NewItemRepository() *itemRepository {
+func NewItemRepository() entity.ItemRepository {
 	return &itemRepository{}
 }
 
@@ -29,7 +23,7 @@ func (r *itemRepository) GetItems() []entity.Item {
 func (r *itemRepository) GetItem(id uint) (entity.Item, error) {
 
 	for _, item := range r.db {
-		if item.Id == id {
+		if uint(item.Id) == id {
 			return item, nil
 		}
 	}
