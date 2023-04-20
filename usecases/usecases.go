@@ -51,3 +51,20 @@ func (u *usecases) GetItem(item dom.Item)error{
 
 	return nil
 }
+
+func (u *usecases) DeleteItem(id int) bool {
+    var db []dom.Item
+    var itemEncontrado  dom.Item
+    for i, dbItem := range db {
+        if id == dbItem.ID{
+            itemEncontrado = dbItem
+            db = append(db[:i], db[i+1:]...)
+            break
+        }
+    }
+    if itemEncontrado == (dom.Item{}) {
+        return false
+    }
+    return true
+}
+

@@ -90,3 +90,40 @@ func (ctrl *controller) UpdateItem(ctx *gin.Context) {
 
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err})
 	}
+
+	func (ctrl *controller) DeleteItem(ctx *gin.Context) {
+		idParam := ctx.Param("id")
+	
+		id, err := strconv.Atoi(idParam)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": true,
+				"data":  err.Error(),
+			})
+			return
+		}
+	
+		itemEliminado := ctrl.ucService.DeleteItem(id)
+	
+		if !itemEliminado {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": true,
+				
+				"data":  "no se pudo eliminar el item",
+			})
+			return
+		}
+	
+		ctx.JSON(http.StatusOK, gin.H{
+			"error": false,
+			"data":  itemEliminado,
+		})
+	}
+	
+	
+	
+	
+	
+	
+	
+	

@@ -70,6 +70,7 @@ func main() {
 
 	r.GET("/ping", pong)
 
+	//preguntar a dami
 	r.GET("/api/v1/items", controllerService.getItem)
 	r.GET("/api/v1/items/:id", getItemsById)
 	r.PUT("/api/v1/items/:id", controllerService.UpdateItem)
@@ -225,31 +226,31 @@ func main() {
 		})
 	}
 
-func deleteItem(c *gin.Context){
+// func deleteItem(c *gin.Context){
 	
-	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": true,
-			"data":  err.Error(),
-		})
-		return
-	}
-	for i, v := range db{
-		if v.ID == id {
-			db = append(db[:i], db[i+1:]...)
-		}
-	}
+// 	idParam := c.Param("id")
+// 	id, err := strconv.Atoi(idParam)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"error": true,
+// 			"data":  err.Error(),
+// 		})
+// 		return
+// 	}
+// 	for i, v := range db{
+// 		if v.ID == id {
+// 			db = append(db[:i], db[i+1:]...)
+// 		}
+// 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"error": false,
-		"data":  db,
-	})
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"error": false,
+// 		"data":  db,
+// 	})
 
 
 
-}
+// }
 
 	
 	
