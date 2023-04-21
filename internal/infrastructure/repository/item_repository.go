@@ -28,9 +28,9 @@ func (r *itemRepository) GetDB() []dom.Item {
 }  */
 
 // funciones que ayudan a las principales :v
-
-func (r *itemRepository) SaveItem(item dom.Item) {
-	r.db = append(r.db, item)
+func (r *itemRepository) SaveItem(item *dom.Item) error {
+	r.db = append(r.db, *item)
+	return nil
 }
 
 func (r *itemRepository) ChangeItemStatus(item *dom.Item) error {
@@ -55,14 +55,15 @@ func (r *itemRepository) FindItemById(id int) *dom.Item {
 	return nil
 }
 
-func (r *itemRepository) GenerateID(items []dom.Item) int {
-	maxId := 0
-	for i := 0; i < len(items); i++ {
-		if items[i].ID > maxId {
-			maxId = items[i].ID
+func (r *itemRepository) GenerateID() int {
+	var nextId int
+	for _, val := range r.db {
+		if nextId < val.ID {
+			nextId = val.ID
 		}
 	}
-	return maxId + 1
+	nextId++
+	return nextId
 }
 
 func (r *itemRepository) RequiredFields(item *dom.Item) error {
@@ -110,8 +111,8 @@ func (r *itemRepository) UpdateFields(item *dom.Item, updateItem dom.Item) {
 func (r *itemRepository) VerifyCode(code string) bool {
 	for i := range r.db {
 		if r.db[i].Code == code {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }

@@ -53,7 +53,7 @@ func main() {
 	//Guardar un item
 	route.POST("/v1/items", serviceItemController.AddItems)
 	//Listar item by ID
-	//route.GET("/v1/items/:id", serviceItemController.GetItemsById)
+	route.GET("/v1/items/:id", serviceItemController.GetItemsById)
 	//Actualizar item by ID
 	//route.PUT("/v1/items/:id", serviceItemController.UpdateItems)
 	//Eliminar item by Id

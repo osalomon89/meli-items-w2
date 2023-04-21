@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	//"strconv"
 	//"time"
@@ -35,6 +36,7 @@ type responseInfo struct {
 }
 
 func (c *ItemController) GetItems(gin *gin.Context) {
+
 	items, err := c.itemUseCase.GetItems()
 	if err != nil {
 		gin.JSON(http.StatusInternalServerError, responseInfo{
@@ -56,7 +58,6 @@ func (c *ItemController) AddItems(gin *gin.Context) {
 	body := request.Body
 	var item dom.Item
 	err := json.NewDecoder(body).Decode(&item)
-
 	if err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
@@ -64,18 +65,26 @@ func (c *ItemController) AddItems(gin *gin.Context) {
 		})
 		return
 	}
+
+	err = c.itemUseCase.AddItem(&item)
+	if err != nil {
+		gin.JSON(http.StatusBadRequest, responseInfo{
+			Error: true,
+			Data:  err.Error(),
+		})
+		return
+	}
+
 	gin.JSON(http.StatusOK, responseInfo{
 		Error: false,
 		Data:  item,
 	})
 }
 
-/*
 // Listar item por id
 func (c *ItemController) GetItemsById(gin *gin.Context) {
 	idParam := gin.Param("id")
 	id, err := strconv.Atoi(idParam)
-
 	if err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
@@ -84,16 +93,24 @@ func (c *ItemController) GetItemsById(gin *gin.Context) {
 		return
 	}
 
-	for _, value := range c.db {
-		if value.ID == id {
-			gin.JSON(http.StatusOK, responseInfo{
-				Error: false,
-				Data:  value,
-			})
-		}
+	// llamar al caso de uso para obtener el item
+	item, err := c.itemUseCase.GetItemById(id)
+	if err != nil {
+		gin.JSON(http.StatusNotFound, responseInfo{
+			Error: true,
+			Data:  "Item no encontrado",
+		})
+		return
 	}
+
+	// retornar el item encontrado
+	gin.JSON(http.StatusOK, responseInfo{
+		Error: false,
+		Data:  item,
+	})
 }
 
+/*
 // Actualizar item por ID
 func (c *ItemController) UpdateItems(gin *gin.Context) {
 	idParam := gin.Param("id")

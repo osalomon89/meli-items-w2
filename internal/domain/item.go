@@ -22,11 +22,11 @@ type Item struct {
 type ItemRepository interface {
 	//DeleteItem(item Item) bool
 	GetDB() []Item
-	GenerateID(item []Item) int
+	GenerateID() int
 	VerifyCode(code string) bool
 	FindItemById(id int) *Item
 	ChangeItemStatus(item *Item) error
 	RequiredFields(item *Item) error
 	UpdateFields(item *Item, updateItem Item)
-	SaveItem(item Item)
+	SaveItem(item *Item) error
 }
