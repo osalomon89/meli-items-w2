@@ -3,12 +3,12 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
+	dom "meli-items-w2/internal/core/domain"
+	"meli-items-w2/internal/core/usecase"
 	"time"
 
-	dom "meli-items-w2/internal/domain"
 	"meli-items-w2/internal/infraestructure/controller"
 	"meli-items-w2/internal/infraestructure/repository"
-	"meli-items-w2/internal/usecase"
 )
 
 // Puerto de escucha declarado como const

@@ -3,13 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	dom "meli-items-w2/internal/core/domain"
+	"meli-items-w2/internal/core/usecase"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-
-	dom "meli-items-w2/internal/domain"
-	"meli-items-w2/internal/usecase"
 )
 
 type ItemController struct {

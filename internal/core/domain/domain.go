@@ -14,6 +14,7 @@ type Item struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+/*
 type ItemRepository interface {
 	AddItem(item Item) *Item
 	UpdateItem(item Item, id int) *Item
@@ -26,3 +27,4 @@ type ItemRepository interface {
 
 	GetDB() []Item
 }
+*/

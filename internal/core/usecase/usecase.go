@@ -4,23 +4,25 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	dom "meli-items-w2/internal/domain"
 	"time"
+
+	dom "meli-items-w2/internal/core/domain"
+	port "meli-items-w2/internal/core/usecase/port"
 )
 
 type ItemUsecase interface {
 	AddItem(item dom.Item) *dom.Item
 	GetItemById(id int) *dom.Item
-	UpdateItem(item dom.Item, id int) dom.Item
+	UpdateItem(item dom.Item, id int) *dom.Item
 	DeleteItem(id int) *dom.Item
 	ListItem(status string) []dom.Item
 }
 
 type itemUsecase struct {
-	repo dom.ItemRepository
+	repo port.ItemRepository
 }
 
-func NewItemUsecase(repo dom.ItemRepository) *itemUsecase {
+func NewItemUsecase(repo port.ItemRepository) *itemUsecase {
 	return &itemUsecase{repo}
 }
 
