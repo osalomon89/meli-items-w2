@@ -1,0 +1,7 @@
+FROM mysql:5.7
+ARG BUILDPLATFORM=linux/amd64
+
+
+# import data into container
+# All scripts in docker-entrypoint-initdb.d/ are automatically executed during container startup
+# COPY ./app/db/*.sql /docker-entrypoint-initdb.d/
