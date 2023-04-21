@@ -5,7 +5,7 @@ import (
 )
 
 //go:generate mockgen -source=./ports.go -destination=../../mocks/item_usecase_mock.go -package=mocks
-//mockgen -source=item-repository.go -destination=./mocks/item_repository_mock.go -package=mocks
+//mockgen -source=item-repository.go -destination=./../mocks/item_repository_mock.go -package=mocks
 
 type ItemUsecase interface {
 	//metodos 
