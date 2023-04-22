@@ -110,57 +110,47 @@ func (c *ItemController) GetItemsById(gin *gin.Context) {
 	})
 }
 
-/*
 // Actualizar item por ID
 func (c *ItemController) UpdateItems(gin *gin.Context) {
 	idParam := gin.Param("id")
 	id, err := strconv.Atoi(idParam)
-
 	if err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+			Data:  fmt.Sprintf("Invalid id: %s", gin.Param("id")),
 		})
 		return
 	}
 
-	item := findItemById(id)
-	if item == nil {
+	// Leer el body de la petición y decodificarlo a un item
+	request := gin.Request
+	body := request.Body
+	var item dom.Item
+	err = json.NewDecoder(body).Decode(&item)
+	if err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("item with ID %d not found", id),
+			Data:  fmt.Sprintf("Invalid JSON: %s", err.Error()),
 		})
 		return
 	}
-
-	//cambiar status segun el stock
-	if err := changeItemStatus(item); err != nil {
+	// Agregar el id al item
+	item.ID = id
+	// Actualizar el item en el caso de uso
+	var updatedItem *dom.Item
+	updatedItem, err = c.itemUseCase.UpdateItem(&item)
+	if err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
 			Data:  err.Error(),
 		})
-	}
-
-	// Actualizar campos
-	var updateItem dom.Item
-	err = gin.BindJSON(&updateItem)
-	if err != nil {
-		gin.JSON(http.StatusBadRequest, responseInfo{
-			Error: true,
-			Data:  fmt.Sprintf("error binding json: %s", err.Error()),
-		})
 		return
 	}
-
-	updateFields(item, updateItem)
-	//hora de actualizacion
-	item.UpdatedAt = time.Now()
-
+	// Responder con el item actualizado
 	gin.JSON(http.StatusOK, responseInfo{
 		Error: false,
-		Data:  item,
+		Data:  updatedItem,
 	})
-
 }
 
 // Funcion Delete
@@ -174,21 +164,12 @@ func (c *ItemController) DeleteItem(gin *gin.Context) {
 		})
 		return
 	}
-
-	item := findItemById(id)
-	if item == nil {
+	if id != 0 {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("item with ID %d not found", id),
+			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
 		})
 		return
-	}
-
-	for i, item := range c.db {
-		if item.ID == id {
-			c.db = append(c.db[:i], c.db[i+1:]...)
-			break
-		}
 	}
 
 	gin.JSON(http.StatusOK, responseInfo{
@@ -196,7 +177,7 @@ func (c *ItemController) DeleteItem(gin *gin.Context) {
 		Data:  "Item delete successfully.",
 	})
 
-} */
+}
 
 // Funcion para generar ID
 // Recibir un SLICE de tipo item

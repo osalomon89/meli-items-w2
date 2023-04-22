@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	dom "github.com/javmoreno-meli/meli-item-w2/internal/domain"
 )
@@ -89,23 +90,40 @@ func (r *itemRepository) RequiredFields(item *dom.Item) error {
 	return nil
 }
 
-func (r *itemRepository) UpdateFields(item *dom.Item, updateItem dom.Item) {
-
-	if updateItem.Code != "" {
-		item.Code = updateItem.Code
+/*
+	 func (r *itemRepository) UpdateFields(item *dom.Item) error {
+		for i := range r.db {
+			if r.db[i].ID == item.ID {
+				// Actualizar el item en el slice
+				r.db[i] = *item
+				return nil
+			}
+		}
+		return fmt.Errorf("item with id %d does not exist", item.ID)
 	}
-	if updateItem.Title != "" {
-		item.Title = updateItem.Title
+*/
+func (r *itemRepository) UpdateFields(updateItem *dom.Item) error {
+	for i := range r.db {
+		if r.db[i].ID == updateItem.ID {
+			if updateItem.Code != "" {
+				r.db[i].Code = updateItem.Code
+			}
+			if updateItem.Title != "" {
+				r.db[i].Title = updateItem.Title
+			}
+			if updateItem.Description != "" {
+				r.db[i].Description = updateItem.Description
+			}
+			if updateItem.Price != 0 {
+				r.db[i].Price = updateItem.Price
+			}
+			if updateItem.Stock != 0 {
+				r.db[i].Stock = updateItem.Stock
+			}
+			return nil
+		}
 	}
-	if updateItem.Description != "" {
-		item.Description = updateItem.Description
-	}
-	if updateItem.Price != 0 {
-		item.Price = updateItem.Price
-	}
-	if updateItem.Stock != 0 {
-		item.Stock = updateItem.Stock
-	}
+	return fmt.Errorf("item with id %d does not exist", updateItem.ID)
 }
 
 func (r *itemRepository) VerifyCode(code string) bool {
@@ -115,4 +133,17 @@ func (r *itemRepository) VerifyCode(code string) bool {
 		}
 	}
 	return false
+}
+
+func (r *itemRepository) DeleteRegister(id int, item *dom.Item) error {
+	if item == nil {
+		return fmt.Errorf("item not exist (Error en respository - deleteRegister)")
+	}
+	for i, item := range r.db {
+		if item.ID == id {
+			r.db = append(r.db[:i], r.db[i+1:]...)
+			break
+		}
+	}
+	return nil
 }

@@ -15,8 +15,8 @@ type ItemUseCase interface {
 	GetItems() ([]dom.Item, error)
 	AddItem(item *dom.Item) error
 	GetItemById(id int) (*dom.Item, error)
-	//UpdateItems(item dom.Item) *dom.Item
-	//DeleteItem(item dom.Item) *dom.Item //luego seria ideal retornar el error tambine (*dom.Item, error)
+	UpdateItem(item *dom.Item) (*dom.Item, error)
+	DeleteItem(item *dom.Item) error //luego seria ideal retornar el error tambine (*dom.Item, error)
 
 }
 
@@ -63,10 +63,35 @@ func (uc *itemUseCase) AddItem(item *dom.Item) error {
 	return nil
 }
 
-func (c *itemUseCase) GetItemById(id int) (*dom.Item, error) {
-	item := c.repo.FindItemById(id)
+func (uc *itemUseCase) GetItemById(id int) (*dom.Item, error) {
+	item := uc.repo.FindItemById(id)
 	if item == nil {
 		return nil, errors.New("item not found")
 	}
 	return item, nil
+}
+
+func (uc *itemUseCase) UpdateItem(item *dom.Item) (*dom.Item, error) {
+	if uc.repo.FindItemById(item.ID) == nil {
+		return nil, fmt.Errorf("item with id %d does not exist", item.ID)
+	}
+	if err := uc.repo.ChangeItemStatus(item); err != nil {
+		return nil, err
+	}
+
+	if err := uc.repo.UpdateFields(item); err != nil {
+		return nil, err
+	}
+
+	item.UpdatedAt = time.Now()
+	// Actualizar el item en el repositorio
+	return item, nil
+}
+
+func (uc *itemUseCase) DeleteItem(item *dom.Item) error {
+	if uc.repo.FindItemById(item.ID) == nil {
+		return fmt.Errorf("item with id %d does not exist", item.ID)
+	}
+
+	return uc.repo.DeleteRegister(item.ID, item)
 }

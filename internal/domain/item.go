@@ -27,6 +27,7 @@ type ItemRepository interface {
 	FindItemById(id int) *Item
 	ChangeItemStatus(item *Item) error
 	RequiredFields(item *Item) error
-	UpdateFields(item *Item, updateItem Item)
+	UpdateFields(item *Item) error
 	SaveItem(item *Item) error
+	DeleteRegister(id int, item *Item) error
 }
