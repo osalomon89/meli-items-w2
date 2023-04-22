@@ -160,23 +160,24 @@ func (c *ItemController) DeleteItem(gin *gin.Context) {
 	if err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+			Data:  fmt.Sprintf("Invalid id: %s", gin.Param("id")),
 		})
 		return
 	}
-	if id != 0 {
+
+	// Eliminar el item en el caso de uso
+	if err := c.itemUseCase.DeleteItem(id); err != nil {
 		gin.JSON(http.StatusBadRequest, responseInfo{
 			Error: true,
-			Data:  fmt.Sprintf("invalid param: %s", err.Error()),
+			Data:  err.Error(),
 		})
 		return
 	}
-
+	// Responder con mensaje de éxito
 	gin.JSON(http.StatusOK, responseInfo{
 		Error: false,
-		Data:  "Item delete successfully.",
+		Data:  fmt.Sprintf("Item with id %d has been deleted", id),
 	})
-
 }
 
 // Funcion para generar ID

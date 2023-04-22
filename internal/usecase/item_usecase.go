@@ -16,7 +16,7 @@ type ItemUseCase interface {
 	AddItem(item *dom.Item) error
 	GetItemById(id int) (*dom.Item, error)
 	UpdateItem(item *dom.Item) (*dom.Item, error)
-	DeleteItem(item *dom.Item) error //luego seria ideal retornar el error tambine (*dom.Item, error)
+	DeleteItem(id int) error //luego seria ideal retornar el error tambine (*dom.Item, error)
 
 }
 
@@ -88,10 +88,13 @@ func (uc *itemUseCase) UpdateItem(item *dom.Item) (*dom.Item, error) {
 	return item, nil
 }
 
-func (uc *itemUseCase) DeleteItem(item *dom.Item) error {
-	if uc.repo.FindItemById(item.ID) == nil {
-		return fmt.Errorf("item with id %d does not exist", item.ID)
+func (uc *itemUseCase) DeleteItem(id int) error {
+	item := uc.repo.FindItemById(id)
+	if item == nil {
+		return fmt.Errorf("item with id %d does not exist", id)
 	}
-
-	return uc.repo.DeleteRegister(item.ID, item)
+	if err := uc.repo.DeleteRegister(id, item); err != nil {
+		return err
+	}
+	return nil
 }
