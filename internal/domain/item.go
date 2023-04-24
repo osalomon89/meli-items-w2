@@ -19,3 +19,9 @@ type Item struct {
 type ItemNotFound struct {
 	Message string
 }
+
+//si quiero hacer un maoa
+/*
+
+type mapRepo map[int]Item
+*/

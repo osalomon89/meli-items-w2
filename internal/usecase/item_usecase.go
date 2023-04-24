@@ -19,7 +19,7 @@ se definen todas las funciones
 
 //definimos una interface
 
-//definimos una estructura
+//definimos una estructura, en minuscula
 type itemUsecase struct {
 	repo port.ItemRepository
 }

@@ -31,6 +31,7 @@ func NewItemController(usecase port.ItemUsecase) *ItemController {
 }
 
 
+//van las puertas de enlace
 /*------------GET-------------*/
 
 

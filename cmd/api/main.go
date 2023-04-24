@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"gigigarino/challengeMELI/internal/infraestructure/controller"
 	"gigigarino/challengeMELI/internal/infraestructure/repository/in-memory"
 	"gigigarino/challengeMELI/internal/usecase"
@@ -73,7 +74,8 @@ func main() {
 		log.Fatal(err)
 	}
 	*/
-
+	// se crea la instancia de gin engine, 
+	//crea un entitador  con los middleware de logger y recovery por defecto
 	r := gin.Default()
 
 	//va el repo/usecase/controller
@@ -81,7 +83,12 @@ func main() {
 	usecase := usecase.NewItemUsecase(repo)
 	ctrl := controller.NewItemController(usecase)
 
-	//van los endpoint
+	fmt.Println(ctrl)
+
+	
+
+	//van los endpoint, se crean las rutas
+	// esto iria en la carpeta web
 	/*------GETS -------*/
 	r.GET("/", ctrl.Index)
 	r.GET("v1/listaInicial", ctrl.GetListaInicial)
@@ -102,8 +109,9 @@ func main() {
 	r.Run(port)
 	log.Println("server listening to the port:", port)
 
-	/*------MSJ DE ERROR -------*/
+	/*------se crea el servidor con el metodo run de gin -------*/
 	if err := http.ListenAndServe(port, r); err != nil {
 		log.Fatalln(err)
 	}
+	
 }

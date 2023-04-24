@@ -7,18 +7,21 @@ import (
 	"time"
 )
 
-//definimos estructura
+//definimos estructura como primer paso
+//va en minuscula
 type itemRepository struct {
 	articulos []domain.Item
 	
 }
 
 //definimos nuevafunciom
+// en los aprametros de entrada hacemos la inyeccion de dependencias
 func NewItemRepository() port.ItemRepository {
 	return &itemRepository{}
 }
 
-
+// en el parametro de entrada se hace con puntero, se recomienda 
+//son metodos ahora en vez de funciones 
 func (r *itemRepository) Index() []domain.Item{
 	return r.articulos
 }
