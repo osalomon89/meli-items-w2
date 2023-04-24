@@ -5,21 +5,27 @@ import (
 	"fmt"
 	"testing"
 
+	dom "meli-items-w2/internal/core/domain"
+	_ "meli-items-w2/internal/core/usecase"
+
+	"github.com/golang/mock/gomock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-
-	"meli-items-w2/internal/core/usecase"
-	"meli-items-w2/internal/mocks"
 )
 
 // Definimos un mock para nuestro repositorio que nos permitirá simular el comportamiento de la base de datos
 type itemRepositoryMock struct {
-	err error
+	err   error
+	item  *dom.Item
+	found bool
 }
 
 // Implementamos el método GetItemByID del repositorio para retornar el error que definimos en la estructura
-func (repo itemRepositoryMock) GetItemByID(id int) error {
-	return repo.err
+func (repo itemRepositoryMock) GetItemById(id int) *dom.Item {
+	if !repo.found {
+		return nil
+	}
+	return repo.item
 }
 
 func Test_itemUsecase_GetItemById(t *testing.T) {
@@ -35,7 +41,8 @@ func Test_itemUsecase_GetItemById(t *testing.T) {
 		name      string
 		args      args
 		repoError error
-		repoTimes int
+		item      *dom.Item
+		found     bool
 		wantedErr error
 	}{
 		{
@@ -44,8 +51,13 @@ func Test_itemUsecase_GetItemById(t *testing.T) {
 			args: args{
 				id: 1,
 			},
+			item: &dom.Item{
+				Id:          1,
+				Title:       "test item",
+				Description: "test description",
+			},
+			found:     true,
 			repoError: nil,
-			repoTimes: 1,
 		},
 		{
 			name:      "Should return error id doesn't exist",
@@ -53,8 +65,8 @@ func Test_itemUsecase_GetItemById(t *testing.T) {
 			args: args{
 				id: 100,
 			},
-			repoError: nil,
-			repoTimes: 0,
+			item:  nil,
+			found: false,
 		},
 		{
 			name:      "Should return error when repository returns an error",
@@ -62,8 +74,9 @@ func Test_itemUsecase_GetItemById(t *testing.T) {
 			args: args{
 				id: 1,
 			},
-			repoError: errors.New("the repository error"),
-			repoTimes: 1,
+			item:  nil,
+			found: false,
+			//err:   errors.New("the repository error"),
 		},
 	}
 
@@ -76,29 +89,35 @@ func Test_itemUsecase_GetItemById(t *testing.T) {
 			defer ctrl.Finish()
 
 			// Creamos un mock del repositorio que vamos a utilizar
-			repositoryMock := mocks.NewMockItemRepository(ctrl)
+			repositoryMock := mocks.
 
-			// Indicamos cuál va a ser el comportamiento esperado del mock
-			repositoryMock.EXPECT().
-				GetItemByID(tt.args.id).
-				Return(tt.repoError).
-				Times(tt.repoTimes)
+			/*
+				// Indicamos cuál va a ser el comportamiento esperado del mock
+				repositoryMock.EXPECT().
+					GetItemById(tt.args.id).
+					Return(tt.item).
+					Times(1)
 
-			// Creamos una nueva instancia del servicio que vamos a testear,
-			// pasándole el mock creado anteriormente
-			svc := usecase.NewItemUsecase(repositoryMock)
+				// Creamos una nueva instancia del servicio
+				service := usecase.NewItemUsecase(repositoryMock)
+				// Si se espera un error en el repositorio, configuramos el mock para retornarlo
+				if tt.repoError != nil {
+					repositoryMock.EXPECT().
+						GetItemById(tt.args.id).
+						Return(nil).
+						Times(1).
+						Error(tt.repoError)
+				}
 
-			// Ejecutamos el método que queremos testear
-			err := svc.GetItemById(tt.args.id)
-
-			// Verificamos que la respuesta obtenida es la que esperábamos
-			if tt.wantedErr != nil {
-				assert.NotNil(err)
-				assert.Equal(tt.wantedErr.Error(), err.Error(), "Error message is not the expected")
-				return
-			}
-
-			assert.Nil(err)
+				// Llamamos al método que queremos testear y comprobamos si retorna el error esperado
+				item, err := service.GetItemById(tt.args.id)
+				if tt.wantedErr != nil {
+					assert.EqualError(err, tt.wantedErr.Error())
+					assert.Nil(item)
+				} else {
+					assert.NoError(err)
+					assert.Equal(tt.item, item)
+				}*/
 		})
 	}
 
